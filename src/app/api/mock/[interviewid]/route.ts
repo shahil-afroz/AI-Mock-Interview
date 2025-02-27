@@ -6,7 +6,7 @@ export async function GET(
   { params }: { params: { interviewid: string } }
 ) {
   try {
-    const {interviewid} = params
+    const {interviewid} = await params
     const interview = await db.mockInterview.findUnique({
       where: {
         id:  interviewid,

@@ -8,11 +8,11 @@ import {
   DialogHeader,
   DialogTitle
 } from "@/components/ui/dialog";
+import { useUser } from "@clerk/nextjs";
 import { LoaderPinwheelIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState,useEffect } from "react";
+import { useEffect, useState } from "react";
 import { chatSession } from "../../../lib/AI/GeminiAIModel";
-import { useUser } from "@clerk/nextjs";
 
 
 function AddMockInterview() {
@@ -73,13 +73,13 @@ function AddMockInterview() {
       const parsedResponse = JSON.parse(cleanedResponse);
 
       console.log("Parsed Response:", parsedResponse);
-      setMockJsonResp(parsedResponse.questions);
+      setMockJsonResp(parsedResponse);
 
       const mockData = {
         jobDesc: jobdesc,
         jobPosition: role,
         jobexperience: years,
-        MockResponse: parsedResponse.questions
+        MockResponse: parsedResponse
       };
 
       console.log(mockData)
