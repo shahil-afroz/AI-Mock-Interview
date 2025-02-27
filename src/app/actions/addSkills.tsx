@@ -39,7 +39,7 @@ export const addSkills = async (data: SkillData) => {
 export const getSkill=async(userId:any)=>{
   try {
    
-    const getSkill=await db.user.findMany(
+    const getSkill=await db.user.findFirst(
       {
         where:{
           id:userId

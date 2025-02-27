@@ -51,7 +51,7 @@ export const addPersonalProfile = async (data: SkillData) => {
         dob: data.dob ?? null, // Handle optional fields properly
         description: data.description ?? null,
         ProfileImage: user.imageUrl?? null,
-        resume:data.resume??null,
+        resume:data.resume?? null,
         Type: data.role, // Ensure correct casing
         Linkedin: data.linkedin ?? null,
         Github: data.github ?? null,
@@ -68,7 +68,7 @@ export const addPersonalProfile = async (data: SkillData) => {
 export const getPersonalProfiles=async(userId:any)=>{
   try {
    
-    const getProfile=await db.user.findMany(
+    const getProfile=await db.user.findFirst(
       {
         where:{
           id:userId

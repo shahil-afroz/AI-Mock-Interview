@@ -1,5 +1,6 @@
 import React from 'react'
 import { Button } from '../../../components/ui/button'
+import { link } from 'fs'
 
 function Navbar() {
   let links=[
@@ -11,12 +12,10 @@ function Navbar() {
         link:"About",
        path:"/about"
     },
-   
     {
         link:"Contact",
        path:"/contact"
-    },
-    
+    }
   ]
   return (
     <div>
@@ -32,7 +31,6 @@ function Navbar() {
         Master Your Interviews
       </span>
     </div>
-
     {/* Desktop Navigation */}
     <div className="hidden md:flex items-center space-x-8">
       {links.map((link,index) => (
@@ -50,7 +48,6 @@ function Navbar() {
         Get Started
       </Button>
     </div>
-
     {/* Mobile menu button */}
     <div className="md:hidden">
       <Button
