@@ -1,8 +1,17 @@
-import React from 'react';
+'use client'
+import {useEffect} from 'react';
 import { User, MessageSquare, Image, Eye, ThumbsUp, Paperclip, Globe, Phone, Mail, Calendar, Camera, Star, FileText } from 'lucide-react';
 import Navbar from '@/components/navbar';
+import { useRouter } from 'next/navigation';
+import {getExperiences} from '../../actions/addExperience'
+import { useParams } from 'next/navigation';
+import { getPersonalProfiles } from '@/app/actions/addPersonalProfile';
+import { getSkill } from '@/app/actions/addSkills';
 
 export default function ProfilePage() {
+     const router = useRouter();
+        const { userid } = useParams();
+        console.log(userid);
     // Reorganized tech stacks into Programming Languages, Frameworks, and Tools
     const programmingLanguages = [
         { name: "JavaScript", color: "bg-yellow-500" },
@@ -36,6 +45,20 @@ export default function ProfilePage() {
         { name: "Firebase", color: "bg-yellow-600" },
         { name: "GraphQL", color: "bg-pink-600" }
     ];
+    useEffect(() => {
+     const getExperience=async(userid)=>{
+        const response=await getExperiences(userid);
+        const profile=await getPersonalProfiles(userid);
+        const skills=await getSkill(userid);
+        console.log('response',response);
+        console.log('profile',profile);
+        console.log('skills',skills);
+     }
+     getExperience();
+   
+     
+    }, [])
+    
 
     return (
         <div className="min-h-screen bg-[#232a34]">

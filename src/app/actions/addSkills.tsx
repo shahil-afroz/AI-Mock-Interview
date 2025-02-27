@@ -35,3 +35,22 @@ export const addSkills = async (data: SkillData) => {
     return { error: "Failed to save skills" };
   }
 };
+
+export const getSkill=async(userId:any)=>{
+  try {
+   
+    const getSkill=await db.user.findMany(
+      {
+        where:{
+          id:userId
+        }
+      }
+    )
+    return { success: true,getSkill };
+
+
+  }catch(error){
+    console.error("Error fetching projects:", error);
+    return { error: "Something went wrong! Please try again." };
+  }
+}
