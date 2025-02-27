@@ -1,18 +1,22 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import Footer from '@/app/dashboard/_components/Footer'
-
 import Navbar from '@/app/dashboard/_components/navbar';
 
 const Home = () => {
   return (
     <div className="relative min-h-screen font-sans ">
       {/* Navbar */}
-     <Navbar/>
+      <Navbar/>
 
       {/* Hero Section */}
-      <section className="relative px-4 py-20 sm:px-6 lg:px-8 bg-cover  bg-center " style={{  backgroundImage: 'url(./Interview.jpg)' }}>
-        <div className="absolute inset-0  bg-opacity-70"></div>
+      <section className="relative px-4 py-20 sm:px-6 lg:px-8 bg-cover bg-center" 
+        style={{
+          backgroundImage: 'linear-gradient(rgba(35, 42, 52, 0.85), rgba(35, 42, 52, 0.85)), url(./Interview.jpg)',
+          backgroundColor: "#232a34", 
+          color: "#01a1e8",
+        }}>
+        <div className="absolute inset-0 bg-opacity-70"></div>
         <div className="relative z-10 max-w-7xl mx-auto">
           <div className="text-center">
             <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold text-white leading-tight mb-8">
@@ -42,9 +46,8 @@ const Home = () => {
         </div>
       </section>
 
+      {/* The rest of your component remains unchanged */}
       <div className="relative bg-[#232a34] text-white">
-
-
         {/* Content */}
         <div className="container mx-auto px-6 py-16 text-center">
           <h5 className="text-[#03a0e6] font-semibold uppercase mb-4">Tailored Preparation</h5>
@@ -156,8 +159,7 @@ const Home = () => {
                     Schedule Now
                   </button>
                 </div>
-              
-               </div>
+              </div>
               {/* Illustration Section */}
               <div className="md:w-1/2 flex justify-center">
                 <div className="relative">
@@ -172,45 +174,45 @@ const Home = () => {
               </div>
             </div>
           </div>
-          </div>
-          </div>
-          {/* Features Grid */}
-          <section className="py-20 bg-[#232a34]">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-              <div className="text-center mb-16">
-                <h2 className="text-3xl font-bold text-[#00a4ed]">Why Choose Us</h2>
-                <p className="mt-4 text-xl text-white">Comprehensive interview preparation tools at your fingertips</p>
-              </div>
-              <div className="grid md:grid-cols-3 gap-8">
-                {[
-                  {
-                    title: "AI-Powered Practice",
-                    description: "Get personalized feedback from our advanced AI system",
-                    icon: "🤖"
-                  },
-                  {
-                    title: "Real-time Analytics",
-                    description: "Track your progress with detailed performance metrics",
-                    icon: "📊"
-                  },
-                  {
-                    title: "Expert Guidance",
-                    description: "Learn from industry professionals and their experiences",
-                    icon: "👨‍🏫"
-                  }
-                ].map((feature) => (
-                  <div key={feature.title} className="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300">
-                    <div className="text-4xl mb-4">{feature.icon}</div>
-                    <h3 className="text-xl font-semibold text-[#01a3eb] mb-2">{feature.title}</h3>
-                    <p className="text-gray-600">{feature.description}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </section>
-<Footer/>
         </div>
-        );
+      </div>
+      {/* Features Grid */}
+      <section className="py-20 bg-[#232a34]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl font-bold text-[#00a4ed]">Why Choose Us</h2>
+            <p className="mt-4 text-xl text-white">Comprehensive interview preparation tools at your fingertips</p>
+          </div>
+          <div className="grid md:grid-cols-3 gap-8">
+            {[
+              {
+                title: "AI-Powered Practice",
+                description: "Get personalized feedback from our advanced AI system",
+                icon: "🤖"
+              },
+              {
+                title: "Real-time Analytics",
+                description: "Track your progress with detailed performance metrics",
+                icon: "📊"
+              },
+              {
+                title: "Expert Guidance",
+                description: "Learn from industry professionals and their experiences",
+                icon: "👨‍🏫"
+              }
+            ].map((feature) => (
+              <div key={feature.title} className="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300">
+                <div className="text-4xl mb-4">{feature.icon}</div>
+                <h3 className="text-xl font-semibold text-[#01a3eb] mb-2">{feature.title}</h3>
+                <p className="text-gray-600">{feature.description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+      <Footer/>
+    </div>
+  );
 };
 
-        export default Home;
+export default Home;
