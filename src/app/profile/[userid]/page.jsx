@@ -1,22 +1,14 @@
 'use client'
-
 import {useEffect, useState} from 'react';
 import { User, MessageSquare, Image, Eye, ThumbsUp, Paperclip, Globe, Phone, Mail, Calendar, Camera, Star, FileText } from 'lucide-react';
 import Navbar from '../../dashboard/_components/navbar';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
 import {getExperiences} from '../../actions/addExperience'
 import { useParams } from 'next/navigation';
 import { getPersonalProfiles } from '@/app/actions/addPersonalProfile';
 import { getSkill } from '@/app/actions/addSkills';
-import RatingsChart from "@/components/chart";
-import { Calendar, FileText, Mail, MessageSquare, Star, ThumbsUp } from 'lucide-react';
-import { useParams, useRouter } from 'next/navigation';
-import { useEffect } from 'react';
-import { getExperiences } from '../../actions/addExperience';
-import Navbar from '../../dashboard/_components/navbar';
-export default function ProfilePage() {
 
+export default function ProfilePage() {
     const router = useRouter();
     const { userid } = useParams();
     console.log(userid);
@@ -34,7 +26,6 @@ export default function ProfilePage() {
         Linkedin: "",
         Twitter: "",
         dob: "",
-        resume:"",
         languages: [],
         frameworks: [],
         tools: []
@@ -96,13 +87,11 @@ export default function ProfilePage() {
         return colors[index % colors.length];
     };
 
-
     return (
         <div className="min-h-screen bg-[#232a34]">
             <Navbar />
 
             <main className="container mx-auto px-6 py-8 bg-[#232a34]">
-              <RatingsChart/>
                 <div className="rounded-xl shadow-md overflow-hidden mb-8 border-2 border-[#01a2e9]">
                     <div className="md:flex">
                         <div className="p-8 border flex flex-col items-center">
@@ -127,12 +116,10 @@ export default function ProfilePage() {
                             </div>
 
                             <div className="mt-4 w-full">
-                               <Link href={data.resume}>
-                               <button className="w-full flex items-center justify-center bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition">
+                                <button className="w-full flex items-center justify-center bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition">
                                     <FileText className="h-5 w-5 mr-2" />
                                     View Resume
                                 </button>
-                               </Link>
                             </div>
 
                             <div className="mt-6 flex space-x-4">
@@ -203,7 +190,6 @@ export default function ProfilePage() {
                                     <button className="flex-1 py-4 px-6 text-center bg-[#01a2e9] text-white font-medium">
                                         About
                                     </button>
-
                                 </div>
                             </div>
 
@@ -216,26 +202,16 @@ export default function ProfilePage() {
                                     </div>
                                 </div>
 
-
                                 <div>
                                     <h3 className="text-white text-sm mb-1">Gender:</h3>
                                     <div className="flex items-center">
-
                                         <User className="h-4 w-4 text-[#01a2e9] mr-2" />
                                         <span className="text-white">{data.Gender || "Not specified"}</span>
-
-
-                                        <span className="text-white">JGEC Jalpaiguri</span>
-
                                     </div>
                                 </div>
 
                                 <div>
-
                                     <h3 className="text-white text-sm mb-1">Birthday:</h3>
-
-
-
                                     <div className="flex items-center">
                                         <Calendar className="h-4 w-4 text-[#01a2e9] mr-2" />
                                         <span className="text-white">{formatDate(data.dob) || "Not provided"}</span>
@@ -247,14 +223,12 @@ export default function ProfilePage() {
 
                     <div className="md:col-span-3">
                         <div className="bg-[#232a34] rounded-xl shadow-md overflow-hidden mb-8 border border-[#01a2e9]">
-
                             <div className="p-6">
                                 <div className="mb-8">
                                     {/* Tech Stack Section */}
                                     <div className="w-full border border-[#01a2e9] rounded-lg p-6 bg-[#2c3440] text-white">
                                         <h3 className="text-[#01a2e9] font-bold mb-4 text-lg">Programming Languages</h3>
                                         <div className="flex flex-wrap gap-2 mb-6">
-
                                             {data.languages && data.languages.length > 0 ? 
                                                 data.languages.map((tech, index) => (
                                                     <span 
@@ -266,12 +240,10 @@ export default function ProfilePage() {
                                                 )) : 
                                                 <span className="text-gray-400">No programming languages specified</span>
                                             }
-
                                         </div>
-
+                                        
                                         <h3 className="text-[#01a2e9] font-bold mb-4 text-lg">Frameworks</h3>
                                         <div className="flex flex-wrap gap-2 mb-6">
-
                                             {data.frameworks && data.frameworks.length > 0 ? 
                                                 data.frameworks.map((tech, index) => (
                                                     <span 
@@ -283,12 +255,10 @@ export default function ProfilePage() {
                                                 )) : 
                                                 <span className="text-gray-400">No frameworks specified</span>
                                             }
-
                                         </div>
-
+                                        
                                         <h3 className="text-[#01a2e9] font-bold mb-4 text-lg">Tools</h3>
                                         <div className="flex flex-wrap gap-2">
-
                                             {data.tools && data.tools.length > 0 ? 
                                                 data.tools.map((tech, index) => (
                                                     <span 
@@ -302,10 +272,6 @@ export default function ProfilePage() {
                                             }
                                         </div>
                                     </div>
-                             </div>
-                                    </div>
-
-
                                 </div>
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
