@@ -10,7 +10,7 @@ export async function POST(request: NextRequest) {
     const { jobDesc, jobPosition, jobexperience, MockResponse } = body;
 
     // Check if mockResponse is an array of strings
-    console.log(jobDesc,jobPosition,jobexperience,MockResponse)
+    console.log("sahil pod",jobDesc,jobPosition,jobexperience,MockResponse)
     if (!jobDesc || !jobPosition || !jobexperience || !MockResponse) {
       return NextResponse.json(
         { error: 'Missing or invalid fields in request. Ensure all fields are provided and mockResponse is an array of strings.' },
@@ -32,12 +32,11 @@ export async function POST(request: NextRequest) {
         jobDesc,
         jobPosition,
         jobexperience,
-        Roles:[jobPosition],
-        MockResponse,
+        MockResponse:MockResponse,
         userId: user.id,
       },
     });
-
+    console.log("akash maity love",newMockInterview);
     return NextResponse.json(newMockInterview);
   } catch (error: any) {
     console.error('Error saving mock interview:', error.message || error);

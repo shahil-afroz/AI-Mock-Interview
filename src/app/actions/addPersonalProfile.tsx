@@ -18,7 +18,7 @@ interface SkillData {
 }
 
 export const addPersonalProfile = async (data: SkillData) => {
-  
+
   console.log("Received Data:", data);
 
   // 1️⃣ Ensure `data` is not null
@@ -51,7 +51,7 @@ export const addPersonalProfile = async (data: SkillData) => {
         dob: data.dob ?? null, // Handle optional fields properly
         description: data.description ?? null,
         ProfileImage: user.imageUrl?? null,
-        resume:data.resume??null,
+        resume:data.resume?? null,
         Type: data.role, // Ensure correct casing
         Linkedin: data.linkedin ?? null,
         Github: data.github ?? null,
@@ -67,8 +67,13 @@ export const addPersonalProfile = async (data: SkillData) => {
 
 export const getPersonalProfiles=async(userId:any)=>{
   try {
+
    
+
+
+
     const getProfile=await db.user.findMany(
+
       {
         where:{
           id:userId
