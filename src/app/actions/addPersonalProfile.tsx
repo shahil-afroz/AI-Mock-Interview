@@ -68,7 +68,12 @@ export const addPersonalProfile = async (data: SkillData) => {
 export const getPersonalProfiles=async(userId:any)=>{
   try {
 
+   
+
+
+
     const getProfile=await db.user.findMany(
+
       {
         where:{
           id:userId
