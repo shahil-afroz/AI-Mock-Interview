@@ -18,7 +18,7 @@ interface SkillData {
 }
 
 export const addPersonalProfile = async (data: SkillData) => {
-  
+
   console.log("Received Data:", data);
 
   // 1️⃣ Ensure `data` is not null
@@ -67,8 +67,13 @@ export const addPersonalProfile = async (data: SkillData) => {
 
 export const getPersonalProfiles=async(userId:any)=>{
   try {
+
    
-    const getProfile=await db.user.findFirst(
+
+
+
+    const getProfile=await db.user.findMany(
+
       {
         where:{
           id:userId
