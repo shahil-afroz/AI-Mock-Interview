@@ -22,10 +22,10 @@ model User {
   Experience   Experience[]
   Linkedin     String?
   Github       String?
-  resume        String?
-  Twitter   String?
-  AvgRating Int?
-  createdAt DateTime @default(now())
+  resume       String?
+  Twitter      String?
+  AvgRating    Int?
+  createdAt    DateTime     @default(now())
 
   updatedAt DateTime   @default(now())
   timeSlots TimeSlot[]
@@ -52,7 +52,7 @@ model Experience {
 }
 
 model MockInterview {
-  id            String       @id @default(auto()) @map("_id") @db.ObjectId
+  id            String @id @default(auto()) @map("_id") @db.ObjectId
   userId        String
   // interviewerId String
   // intervieweeId String
@@ -60,12 +60,12 @@ model MockInterview {
   jobPosition   String
   jobDesc       String
   jobexperience String
-  Roles         String[]
-  createdAt     DateTime     @default(now())
+
+  createdAt DateTime     @default(now())
   // interviewer   User         @relation("Interviewer", fields: [interviewerId], references: [id])
   // interviewee   User         @relation("Interviewee", fields: [intervieweeId], references: [id])
-  answers       UserAnswer[]
-  User          User         @relation(fields: [userId], references: [id])
+  answers   UserAnswer[]
+  User      User         @relation(fields: [userId], references: [id])
 }
 
 model UserAnswer {
@@ -81,7 +81,7 @@ model UserAnswer {
   // interviewerId       String
   // intervieweeId       String
 
-  correctAnswer   String
+  correctAnswer   String?
   mockInterviewId String         @db.ObjectId
   mockInterview   MockInterview? @relation(fields: [mockInterviewId], references: [id])
 }

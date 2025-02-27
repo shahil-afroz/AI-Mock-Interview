@@ -121,7 +121,7 @@ function RecordAnswerSection({ mockInterviewQuestion, activeQuestionIndex, inter
     setLoading(true);
     try {
       const feedbackPrompt = `Question: ${mockInterviewQuestion[activeQuestionIndex]?.question}, User Answer: ${userAnswer}.
-      Give rating, feedback for improvement, and correct answer in JSON format.`;
+      Give rating, feedback for improvement, and correct answer in JSON format with key correctAnswer`;
 
       const result = await chatSession.sendMessage(feedbackPrompt);
       const responseText = result.response.text();

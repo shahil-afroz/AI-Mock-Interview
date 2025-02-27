@@ -7,9 +7,12 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { question, feedback, userAnswer, mockInterviewId } = body;
-
+    console.log("feedback", feedback.correctAnswer);
+    console.log("userAnswer", userAnswer);
+    console.log("mockInterviewId", mockInterviewId);
+    console.log("question", question);
     // Validate request body
-    if (!question || !feedback?.rating || !feedback?.feedback ||!feedback.correct_answer|| !userAnswer || !mockInterviewId) {
+    if (!question || !feedback?.rating || !feedback?.feedback ||!feedback.correctAnswer|| !userAnswer || !mockInterviewId) {
       return NextResponse.json({ error: 'Missing or invalid fields in request.' }, { status: 400 });
     }
 
@@ -39,10 +42,10 @@ export async function POST(request: NextRequest) {
             id:existingAnswer.id
         },
         data:{
-          Intervieweerating: feedback.rating,
-          Intervieweefeedback: feedback.feedback,
+          Intervieweerating: feedback?.rating,
+          Intervieweefeedback: feedback?.feedback,
           userAnswer,
-          correctAnswer: feedback.correct_answer,
+          correctAnswer: feedback?.correctAnswer,
 
         }
       }
