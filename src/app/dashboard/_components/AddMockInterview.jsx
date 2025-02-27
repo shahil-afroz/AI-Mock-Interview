@@ -73,13 +73,13 @@ function AddMockInterview() {
       const parsedResponse = JSON.parse(cleanedResponse);
 
       console.log("Parsed Response:", parsedResponse);
-      setMockJsonResp(parsedResponse);
+      setMockJsonResp(parsedResponse.questions);
 
       const mockData = {
         jobDesc: jobdesc,
         jobPosition: role,
         jobexperience: years,
-        MockResponse: parsedResponse.interviewQuestions
+        MockResponse: parsedResponse.questions
       };
 
       console.log(mockData)

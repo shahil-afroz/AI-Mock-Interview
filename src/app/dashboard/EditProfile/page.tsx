@@ -1,6 +1,5 @@
-// pages/profile.js
 'use client'
-import { useState, useCallback, SetStateAction, useTransition } from 'react';
+import { useState, useCallback, useTransition } from 'react';
 import { useForm } from 'react-hook-form';
 import { Calendar, Mail, Linkedin, MessageSquare, Info, X } from 'lucide-react';
 import { DropEvent, FileRejection, useDropzone } from 'react-dropzone';
@@ -8,22 +7,75 @@ import Experience from '../_components/Experience';
 import Skills from '../_components/Skills'
 import { addPersonalProfile } from '@/app/actions/addPersonalProfile';
 
+interface FormData {
+  Name: string;
+  dob: string;
+  gender?: string;
+  email: string;
+  linkedin?: string;
+  github?: string;
+  description: string;
+  role?: string;
+  resume?: string;
+}
+
+type UploadedFile = File & { preview?: string };
+
 export default function ProfilePage() {
-    const [isPending, startTransition] = useTransition();
-    const [error, setError] = useState<string | undefined>();
+  const [isPending, startTransition] = useTransition();
+  const [error, setError] = useState<string | undefined>();
   const [success, setSuccess] = useState<string | undefined>();
- 
-  
 
   // State for file upload
-  const [uploadedFiles, setUploadedFiles] = useState([]);
-  
-  // Handle file drop
-  const onDrop = (acceptedFiles: File[], fileRejections: FileRejection[], event: DropEvent) => {
-    console.log(acceptedFiles);
-    // Process the files (e.g., update state)
+  const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
+  const [uploadedResumeUrl, setUploadedResumeUrl] = useState<string>('');
+  const [isUploading, setIsUploading] = useState<boolean>(false);
+
+  // Handle file upload to Cloudinary
+  const uploadToCloudinary = async (file: File): Promise<string | null> => {
+    setIsUploading(true);
+    
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('upload_preset', 'ml_default'); // Replace with your Cloudinary upload preset
+      
+      const response = await fetch(
+        `https://api.cloudinary.com/v1_1/surajitcloud/upload`, // Replace with your Cloudinary cloud name
+        {
+          method: 'POST',
+          body: formData
+        }
+      );
+      
+      const data = await response.json();
+      console.log("I AM BATMAN : ", data);
+      if (data.secure_url) {
+        setUploadedResumeUrl(data.secure_url);
+        return data.secure_url;
+      } else {
+        throw new Error('Upload failed');
+      }
+    } catch (error) {
+      console.error('Error uploading file:', error);
+      setError('Failed to upload file. Please try again.');
+      return null;
+    } finally {
+      setIsUploading(false);
+    }
   };
-  
+
+  // Handle file drop
+  const onDrop = useCallback(async (acceptedFiles: File[], fileRejections: FileRejection[], event: DropEvent) => {
+    if (acceptedFiles && acceptedFiles.length > 0) {
+      const file = acceptedFiles[0];
+      setUploadedFiles([file] as UploadedFile[]);
+      
+      // Upload file to Cloudinary
+      await uploadToCloudinary(file);
+    }
+  }, []);
+
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: {
@@ -33,39 +85,43 @@ export default function ProfilePage() {
     },
     maxFiles: 1,
   });
-  
 
   // Initialize react-hook-form
-  const form = useForm();
-;
-  // Destructure form methods
-  const { register, handleSubmit, watch, formState: { errors }, control, setValue } = form;
-
-  const [completionPercentage, setCompletionPercentage] = useState(10);
-  const [activeTab, setActiveTab] = useState('personal');
-
+  const form = useForm<FormData>();
   
- 
+  // Destructure form methods
+  const { register, handleSubmit, formState: { errors } } = form;
 
-  const onSubmit = (data: any) => {
-    console.log("data",data.Name);
-    console.log('Uploaded file:', uploadedFiles);
+  const [completionPercentage, setCompletionPercentage] = useState<number>(10);
+  const [activeTab, setActiveTab] = useState<string>('personal');
+
+  const onSubmit = (data: FormData) => {
+    // Add resume URL to form data
+    const formDataWithResume = {
+      ...data,
+      resume: uploadedResumeUrl
+    };
+
+    console.log("data with resume URL:", formDataWithResume);
+    
     startTransition(() => {
-      addPersonalProfile(data)
-        .then((data) => {
-          if (data.error) {
-            setError(data.error);
+      addPersonalProfile(formDataWithResume)
+        .then((result: any) => {
+          if (result.error) {
+            setError(result.error);
             setSuccess(undefined);
-            console.log("data uploaded successfully");
-          } else if (data.success) {
-          
+          } else if (result.success) {
+            setSuccess(result.success);
             setError(undefined);
+            console.log("data uploaded successfully");
           }
         })
-        .catch(() => setError("Something went wrong!"));
+        .catch((err: Error) => {
+          console.error("Error submitting form:", err);
+          setError("Something went wrong!");
+        });
     });
 
-   
     setCompletionPercentage(prev => Math.min(prev + 10, 100));
   };
 
@@ -80,7 +136,7 @@ export default function ProfilePage() {
       <div className="max-w-6xl mx-auto">
         <h1 className="text-2xl font-bold mb-1">Complete your profile details</h1>
         <p className="text-gray-400 text-sm mb-6">Detail Your Talent: Complete profile is your canvas to success</p>
-        
+
         {/* Tabs */}
         <div className="flex border-b border-gray-700 mb-6">
           {tabs.map(tab => (
@@ -94,19 +150,17 @@ export default function ProfilePage() {
             </button>
           ))}
         </div>
-        
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2">
-          {activeTab==='exp' && (
-                <Experience/>
-
-              )}
-          {activeTab==='skills' && (
-                <Skills/>
-
-              )}
+            {activeTab === 'exp' && (
+              <Experience />
+            )}
+            {activeTab === 'skills' && (
+              <Skills />
+            )}
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-             
+
               {/* Personal Details Section */}
               {activeTab === 'personal' && (
                 <>
@@ -123,7 +177,7 @@ export default function ProfilePage() {
                         />
                         {errors.Name && <p className="text-red-500 text-sm mt-1">Name is required</p>}
                       </div>
-                      
+
                       {/* Date of Birth */}
                       <div className="relative">
                         <label htmlFor="dob" className="block text-sm text-gray-400 mb-1">Date of birth</label>
@@ -138,7 +192,7 @@ export default function ProfilePage() {
                           {errors.dob && <p className="text-red-500 text-sm mt-1">Date of birth is required</p>}
                         </div>
                       </div>
-                      
+
                       {/* Gender */}
                       <div>
                         <label className="block text-sm text-gray-400 mb-1">Gender</label>
@@ -165,7 +219,7 @@ export default function ProfilePage() {
                           </div>
                         </div>
                       </div>
-                      
+
                       {/* Email */}
                       <div className="relative">
                         <label htmlFor="email" className="block text-sm text-gray-400 mb-1">Email</label>
@@ -180,7 +234,7 @@ export default function ProfilePage() {
                           {errors.email && <p className="text-red-500 text-sm mt-1">Valid email is required</p>}
                         </div>
                       </div>
-                      
+
                       {/* LinkedIn */}
                       <div className="relative">
                         <label htmlFor="linkedin" className="block text-sm text-gray-400 mb-1">LinkedIn</label>
@@ -194,7 +248,7 @@ export default function ProfilePage() {
                           <Linkedin className="absolute right-3 top-3 text-gray-400 h-4 w-4" />
                         </div>
                       </div>
-                      
+
                       {/* GitHub */}
                       <div className="relative">
                         <label htmlFor="github" className="block text-sm text-gray-400 mb-1">GitHub</label>
@@ -208,7 +262,7 @@ export default function ProfilePage() {
                           <MessageSquare className="absolute right-3 top-3 text-gray-400 h-4 w-4" />
                         </div>
                       </div>
-                      
+
                       <div className="relative">
                         <label htmlFor="description" className="block text-sm text-gray-400 mb-1">Description</label>
                       </div>
@@ -225,54 +279,52 @@ export default function ProfilePage() {
                       {errors.description && <p className="text-red-500 text-sm mt-1">Description is required</p>}
                     </div>
                   </div>
-                  
-                  <div className="bg-gray-800 rounded-lg p-6">
-  <h2 className="text-xl font-semibold mb-4">Role Information</h2>
-  <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
-    <div>
-      <label className="block text-sm text-gray-400 mb-1">
-        Are you an Interviewer or Interviewee?
-      </label>
-      <div className="flex items-center space-x-6 bg-gray-700 border border-gray-600 rounded-md p-2.5">
-        <div className="flex items-center">
-          <input
-            id="interviewer"
-            type="radio"
-            value="Interviewer"
-            className="w-4 h-4 text-purple-600 focus:ring-purple-500 bg-gray-600 border-gray-500"
-            {...register('role')}
-          />
-          <label htmlFor="interviewer" className="ml-2 text-sm text-gray-300">
-            Interviewer
-          </label>
-        </div>
-        <div className="flex items-center">
-          <input
-            id="interviewee"
-            type="radio"
-            value="Interviewee"
-            className="w-4 h-4 text-purple-600 focus:ring-purple-500 bg-gray-600 border-gray-500"
-            {...register('role')}
-          />
-          <label htmlFor="interviewee" className="ml-2 text-sm text-gray-300">
-            Interviewee
-          </label>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
 
-                  
+                  <div className="bg-gray-800 rounded-lg p-6">
+                    <h2 className="text-xl font-semibold mb-4">Role Information</h2>
+                    <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
+                      <div>
+                        <label className="block text-sm text-gray-400 mb-1">
+                          Are you an Interviewer or Interviewee?
+                        </label>
+                        <div className="flex items-center space-x-6 bg-gray-700 border border-gray-600 rounded-md p-2.5">
+                          <div className="flex items-center">
+                            <input
+                              id="interviewer"
+                              type="radio"
+                              value="Interviewer"
+                              className="w-4 h-4 text-purple-600 focus:ring-purple-500 bg-gray-600 border-gray-500"
+                              {...register('role')}
+                            />
+                            <label htmlFor="interviewer" className="ml-2 text-sm text-gray-300">
+                              Interviewer
+                            </label>
+                          </div>
+                          <div className="flex items-center">
+                            <input
+                              id="interviewee"
+                              type="radio"
+                              value="Interviewee"
+                              className="w-4 h-4 text-purple-600 focus:ring-purple-500 bg-gray-600 border-gray-500"
+                              {...register('role')}
+                            />
+                            <label htmlFor="interviewee" className="ml-2 text-sm text-gray-300">
+                              Interviewee
+                            </label>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
                   {/* Resume Upload Section */}
                   <div className="bg-gray-800 rounded-lg p-6">
                     <h2 className="text-xl font-semibold mb-1">Upload Resume</h2>
                     <p className="text-gray-400 text-sm mb-4">Boost Your Score by Engage and excel! every action enhances your profile</p>
-                    <div 
-                      {...getRootProps()} 
-                      className={`flex flex-col items-center justify-center border-2 border-dashed border-gray-600 rounded-md bg-gray-700 p-6 cursor-pointer ${
-                        isDragActive ? 'border-purple-500 bg-gray-600' : ''
-                      }`}
+                    <div
+                      {...getRootProps()}
+                      className={`flex flex-col items-center justify-center border-2 border-dashed border-gray-600 rounded-md bg-gray-700 p-6 cursor-pointer ${isDragActive ? 'border-purple-500 bg-gray-600' : ''
+                        }`}
                     >
                       <input {...getInputProps()} />
                       {uploadedFiles.length > 0 ? (
@@ -280,18 +332,25 @@ export default function ProfilePage() {
                           {uploadedFiles.map((file, index) => (
                             <div key={index} className="flex items-center justify-between bg-gray-600 p-2 rounded mt-2">
                               <span className="truncate max-w-xs">{file.name}</span>
-                              <button 
-                                type="button" 
+                              <button
+                                type="button"
                                 className="text-gray-400 hover:text-white"
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   setUploadedFiles([]);
+                                  setUploadedResumeUrl('');
                                 }}
                               >
                                 <X size={16} />
                               </button>
                             </div>
                           ))}
+                          {isUploading && (
+                            <div className="mt-2 text-sm text-gray-300">Uploading to Cloudinary...</div>
+                          )}
+                          {uploadedResumeUrl && (
+                            <div className="mt-2 text-sm text-green-400">Upload successful!</div>
+                          )}
                         </div>
                       ) : (
                         <>
@@ -311,21 +370,21 @@ export default function ProfilePage() {
                     </div>
                   </div>
                   <button
-                type="submit"
-                className="w-full bg-purple-600 hover:bg-purple-700 text-white font-medium py-3 px-4 rounded-md"
-              >
-                Save Profile
-              </button>
+                    type="submit"
+                    disabled={isUploading}
+                    className={`w-full font-medium py-3 px-4 rounded-md ${
+                      isUploading 
+                        ? 'bg-gray-600 cursor-not-allowed' 
+                        : 'bg-purple-600 hover:bg-purple-700 text-white'
+                    }`}
+                  >
+                    {isUploading ? 'Uploading...' : 'Save Profile'}
+                  </button>
                 </>
               )}
-              
-              {/* Skills Section */}
-             
-              
-            
             </form>
           </div>
-          
+
           <div className="space-y-6">
             {/* Profile Completion Card */}
             <div className="bg-gray-800 rounded-lg p-6">
@@ -342,8 +401,8 @@ export default function ProfilePage() {
                   <h3 className="font-semibold">Profile Completion</h3>
                   <div className="flex items-center justify-between mt-1">
                     <div className="w-full bg-gray-700 rounded-full h-2.5 mr-2">
-                      <div 
-                        className="bg-purple-600 h-2.5 rounded-full" 
+                      <div
+                        className="bg-purple-600 h-2.5 rounded-full"
                         style={{ width: `${completionPercentage}%` }}
                       ></div>
                     </div>
@@ -351,7 +410,7 @@ export default function ProfilePage() {
                   </div>
                 </div>
               </div>
-              
+
               <div>
                 <h4 className="font-medium text-sm flex items-center">
                   Profile update tips
@@ -369,7 +428,7 @@ export default function ProfilePage() {
                 </ul>
               </div>
             </div>
-            
+
             {/* Credibility Graph Card */}
             <div className="bg-gray-800 rounded-lg p-6">
               <div className="flex justify-between items-center mb-6">
@@ -383,7 +442,7 @@ export default function ProfilePage() {
                   </button>
                 </div>
               </div>
-              
+
               <div className="h-44 relative">
                 {/* Graph Labels */}
                 <div className="absolute left-0 top-0 h-full flex flex-col justify-between text-xs text-gray-400">
@@ -392,7 +451,7 @@ export default function ProfilePage() {
                   <div>2k</div>
                   <div>0</div>
                 </div>
-                
+
                 {/* Graph */}
                 <div className="ml-6 h-full relative">
                   {/* Grid Lines */}
@@ -400,14 +459,14 @@ export default function ProfilePage() {
                   <div className="absolute w-full h-2/4 border-t border-gray-700"></div>
                   <div className="absolute w-full h-3/4 border-t border-gray-700"></div>
                   <div className="absolute w-full h-full border-t border-gray-700"></div>
-                  
+
                   {/* X Axis Labels */}
                   <div className="absolute bottom-0 w-full flex justify-between text-xs text-gray-400 mt-2">
                     <div>21 Mar</div>
                     <div>23 Mar</div>
                     <div>25 Mar</div>
                   </div>
-                  
+
                   {/* Line */}
                   <div className="absolute h-full w-full">
                     <svg className="h-full w-full" viewBox="0 0 100 100" preserveAspectRatio="none">
@@ -418,7 +477,7 @@ export default function ProfilePage() {
                         fill="none"
                       />
                     </svg>
-                    
+
                     {/* Points */}
                     <div className="absolute bottom-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
                       <div className="h-4 w-4 bg-white rounded-full border-2 border-white relative">
@@ -436,13 +495,4 @@ export default function ProfilePage() {
       </div>
     </div>
   );
-}
-
-function setError(error: string) {
-  throw new Error('Function not implemented.');
-}
-
-
-function setSuccess(undefined: undefined) {
-  throw new Error('Function not implemented.');
 }

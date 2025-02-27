@@ -1,18 +1,22 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { FaFacebookF, FaInstagram, FaYoutube, FaLinkedinIn,FaGithub } from 'react-icons/fa';
-import Image from 'next/image';
-import Navbar from '@/components/navbar';
+import Footer from '@/app/dashboard/_components/Footer'
+import Navbar from '@/app/dashboard/_components/navbar';
 
 const Home = () => {
   return (
     <div className="relative min-h-screen font-sans ">
       {/* Navbar */}
-     <Navbar/>
+      <Navbar/>
 
       {/* Hero Section */}
-      <section className="relative px-4 py-20 sm:px-6 lg:px-8 bg-cover  bg-center" style={{ backgroundImage: 'url(./Interview.jpg)' }}>
-        <div className="absolute inset-0  bg-opacity-70"></div>
+      <section className="relative px-4 py-20 sm:px-6 lg:px-8 bg-cover bg-center" 
+        style={{
+          backgroundImage: 'linear-gradient(rgba(35, 42, 52, 0.85), rgba(35, 42, 52, 0.85)), url(./Interview.jpg)',
+          backgroundColor: "#232a34", 
+          color: "#01a1e8",
+        }}>
+        <div className="absolute inset-0 bg-opacity-70"></div>
         <div className="relative z-10 max-w-7xl mx-auto">
           <div className="text-center">
             <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold text-white leading-tight mb-8">
@@ -42,9 +46,8 @@ const Home = () => {
         </div>
       </section>
 
+      {/* The rest of your component remains unchanged */}
       <div className="relative bg-[#232a34] text-white">
-
-
         {/* Content */}
         <div className="container mx-auto px-6 py-16 text-center">
           <h5 className="text-[#03a0e6] font-semibold uppercase mb-4">Tailored Preparation</h5>
@@ -156,8 +159,7 @@ const Home = () => {
                     Schedule Now
                   </button>
                 </div>
-              
-               </div>
+              </div>
               {/* Illustration Section */}
               <div className="md:w-1/2 flex justify-center">
                 <div className="relative">
@@ -172,127 +174,45 @@ const Home = () => {
               </div>
             </div>
           </div>
-          </div>
-          </div>
-          {/* Features Grid */}
-          <section className="py-20 bg-[#232a34]">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-              <div className="text-center mb-16">
-                <h2 className="text-3xl font-bold text-[#00a4ed]">Why Choose Us</h2>
-                <p className="mt-4 text-xl text-white">Comprehensive interview preparation tools at your fingertips</p>
-              </div>
-              <div className="grid md:grid-cols-3 gap-8">
-                {[
-                  {
-                    title: "AI-Powered Practice",
-                    description: "Get personalized feedback from our advanced AI system",
-                    icon: "🤖"
-                  },
-                  {
-                    title: "Real-time Analytics",
-                    description: "Track your progress with detailed performance metrics",
-                    icon: "📊"
-                  },
-                  {
-                    title: "Expert Guidance",
-                    description: "Learn from industry professionals and their experiences",
-                    icon: "👨‍🏫"
-                  }
-                ].map((feature) => (
-                  <div key={feature.title} className="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300">
-                    <div className="text-4xl mb-4">{feature.icon}</div>
-                    <h3 className="text-xl font-semibold text-[#01a3eb] mb-2">{feature.title}</h3>
-                    <p className="text-gray-600">{feature.description}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </section>
-          <div className="w-[120vh] h-1 bg-[#00a2ec]  mx-auto"></div>
-          {/* Contact Form */}
-          <section className="py-20 bg-[#232a34]">
-            <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-              <div className="text-center mb-12">
-                <h2 className="text-3xl font-bold text-[#01a3eb]">Get Started Today</h2>
-                <p className="mt-4 text-xl text-white">Take the first step towards interview success</p>
-              </div>
-              <form className="bg-white rounded-xl shadow-lg p-8">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                  <input
-                    type="text"
-                    placeholder="First name"
-                    className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                  <input
-                    type="email"
-                    placeholder="Email address"
-                    className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                </div>
-                <textarea
-                  placeholder="Your message"
-                  rows={4}
-                  className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent mb-6"
-                ></textarea>
-                <Button
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-4 rounded-lg"
-                >
-                  Send Message
-                </Button>
-              </form>
-            </div>
-          </section>
-
-          {/* Footer */}
-          <footer className="bg-[#232a34] text-white py-12">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-                <div>
-                  <h3 className="text-xl font-bold mb-4">Master Your Interviews</h3>
-                  <p className="text-gray-400">Empowering your interview success journey</p>
-                </div>
-                <div>
-                  <h4 className="text-lg font-semibold mb-4">Quick Links</h4>
-                  <ul className="space-y-2">
-                    {["About", "Services", "Pricing", "Contact"].map((link) => (
-                      <li key={link}>
-                        <a href={`#${link.toLowerCase()}`} className="text-gray-400 hover:text-white transition-colors duration-300">
-                          {link}
-                        </a>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                <div>
-                  <h4 className="text-lg font-semibold mb-4">Contact</h4>
-                  <ul className="space-y-2 text-gray-400">
-                    <li>contact@masteryourinterviews.com</li>
-                    <li>+1 (123) 456-7890</li>
-                    <li>123 Interview Street, NY 10001</li>
-                  </ul>
-                </div>
-                <div>
-                  <h4 className="text-lg font-semibold mb-4">Follow Us</h4>
-                  <div className="flex space-x-4">
-                    {[FaFacebookF, FaInstagram, FaYoutube, FaLinkedinIn].map((Icon, index) => (
-                      <a
-                        key={index}
-                        href="#"
-                        className="text-gray-400 hover:text-white transition-colors duration-300"
-                      >
-                        <Icon size={24} />
-                      </a>
-                    ))}
-                  </div>
-                </div>
-              </div>
-              <div className="border-t border-gray-800 mt-12 pt-8 text-center text-gray-400">
-                <p>© 2024 Master Your Interviews. All rights reserved.</p>
-              </div>
-            </div>
-          </footer>
         </div>
-        );
+      </div>
+      {/* Features Grid */}
+      <section className="py-20 bg-[#232a34]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl font-bold text-[#00a4ed]">Why Choose Us</h2>
+            <p className="mt-4 text-xl text-white">Comprehensive interview preparation tools at your fingertips</p>
+          </div>
+          <div className="grid md:grid-cols-3 gap-8">
+            {[
+              {
+                title: "AI-Powered Practice",
+                description: "Get personalized feedback from our advanced AI system",
+                icon: "🤖"
+              },
+              {
+                title: "Real-time Analytics",
+                description: "Track your progress with detailed performance metrics",
+                icon: "📊"
+              },
+              {
+                title: "Expert Guidance",
+                description: "Learn from industry professionals and their experiences",
+                icon: "👨‍🏫"
+              }
+            ].map((feature) => (
+              <div key={feature.title} className="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300">
+                <div className="text-4xl mb-4">{feature.icon}</div>
+                <h3 className="text-xl font-semibold text-[#01a3eb] mb-2">{feature.title}</h3>
+                <p className="text-gray-600">{feature.description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+      <Footer/>
+    </div>
+  );
 };
 
-        export default Home;
+export default Home;
