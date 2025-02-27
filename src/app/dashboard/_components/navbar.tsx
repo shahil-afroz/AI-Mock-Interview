@@ -1,7 +1,23 @@
 import React from 'react'
-import { Button } from './ui/button'
+import { Button } from '../../../components/ui/button'
 
 function Navbar() {
+  let links=[
+    {
+       link:"Home",
+       path:"/"
+    },
+    {
+        link:"About",
+       path:"/about"
+    },
+   
+    {
+        link:"Contact",
+       path:"/contact"
+    },
+    
+  ]
   return (
     <div>
       <nav className="sticky top-0  shadow-sm z-50 bg-[#232a34]">
@@ -19,13 +35,13 @@ function Navbar() {
 
     {/* Desktop Navigation */}
     <div className="hidden md:flex items-center space-x-8">
-      {["Home", "About", "Services", "Contact"].map((link) => (
+      {links.map((link,index) => (
         <a
-          key={link}
-          href={`#${link.toLowerCase()}`}
+          key={index}
+          href={link.path}
           className="text-white hover:text-blue-600 transition-colors duration-300 text-xl uppercase tracking-wider"
         >
-          {link}
+          {link.link}
         </a>
       ))}
       <Button
