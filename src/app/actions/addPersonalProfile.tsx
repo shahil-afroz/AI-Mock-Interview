@@ -7,11 +7,11 @@ import { gender } from "@prisma/client";
 interface SkillData {
   Name: string;
   email: string;
-  gender: string;
+  gender?: string;
   description?: string;
   dob?: string;
   profileImage?: string;
-  role: string;
+  role?: string;
   linkedin?: string;
   github?: string;
   resume?: string;
@@ -51,7 +51,7 @@ export const addPersonalProfile = async (data: SkillData) => {
         dob: data.dob ?? null, // Handle optional fields properly
         description: data.description ?? null,
         ProfileImage: user.imageUrl?? null,
-        
+        resume:data.resume??null,
         Type: data.role, // Ensure correct casing
         Linkedin: data.linkedin ?? null,
         Github: data.github ?? null,

@@ -22,9 +22,9 @@ model User {
   Experience   Experience[]
   Linkedin     String?
   Github       String?
-
+  resume        String?
   Twitter      String?
-  AvgRating    Int
+  AvgRating    Int?
   createdAt    DateTime @default(now())
 
 
