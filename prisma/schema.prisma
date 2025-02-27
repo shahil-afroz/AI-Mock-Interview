@@ -22,8 +22,11 @@ model User {
   Experience   Experience[]
   Linkedin     String?
   Github       String?
-  AvgRating    Int     @default(0)
-  createdAt    DateTime     @default(now())
+
+  Twitter      String?
+  AvgRating    Int
+  createdAt    DateTime @default(now())
+
 
   updatedAt DateTime   @default(now())
   timeSlots TimeSlot[]
