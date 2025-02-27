@@ -55,3 +55,22 @@ export const addExperiences = async (
     return { error: "Something went wrong! Please try again." };
   }
 };
+
+export const getExperiences=async(userId:any)=>{
+  try {
+   
+    const getExperiences=await db.experience.findMany(
+      {
+        where:{
+          userId:userId
+        }
+      }
+    )
+    return { success: true,getExperiences };
+
+
+  }catch(error){
+    console.error("Error fetching projects:", error);
+    return { error: "Something went wrong! Please try again." };
+  }
+}

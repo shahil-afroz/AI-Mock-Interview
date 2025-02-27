@@ -10,10 +10,42 @@ import {
 } from "@/components/ui/dialog";
 import { LoaderPinwheelIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState,useEffect } from "react";
 import { chatSession } from "../../../lib/AI/GeminiAIModel";
+import { useUser } from "@clerk/nextjs";
+
 
 function AddMockInterview() {
+
+  const { user } = useUser();
+
+  // console.log('user',user);
+
+  useEffect(() => {
+    if (user) {
+      saveUserToDB(user);
+    }
+  }, [user]);
+
+  const saveUserToDB = async (user) => {
+    console.log("I am BATMAN :",user);
+    try {
+      await fetch("/api/save-user", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          id: user.id,
+          email: user.emailAddresses[0],
+          name: user.fullName,
+          image: user.imageUrl,
+        }),
+      });
+    } catch (error) {
+      console.error("Error saving user:", error);
+    }
+  };
   const [openDialog, setOpenDialog] = useState(false);
   const [jobdesc, setJobdesc] = useState("");
   const [role, setRole] = useState("");

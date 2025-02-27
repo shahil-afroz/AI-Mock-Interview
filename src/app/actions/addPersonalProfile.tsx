@@ -64,3 +64,22 @@ export const addPersonalProfile = async (data: SkillData) => {
     return { error: "Failed to save profile" };
   }
 };
+
+export const getPersonalProfiles=async(userId:any)=>{
+  try {
+   
+    const getProfile=await db.user.findMany(
+      {
+        where:{
+          id:userId
+        }
+      }
+    )
+    return { success: true,getProfile };
+
+
+  }catch(error){
+    console.error("Error fetching projects:", error);
+    return { error: "Something went wrong! Please try again." };
+  }
+}
