@@ -1,0 +1,7 @@
+{
+
+  "buildCommand": "npx prisma generate && next build || exit 0",
+  "installCommand": "npm install prisma @prisma/client",
+  "framework": "nextjs",
+  "regions": ["iad1"]
+}
