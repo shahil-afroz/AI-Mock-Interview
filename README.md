@@ -63,10 +63,10 @@
 
 ## 🌍 Societal Impact
 
-✅ **Bridges the Skill Gap** by offering affordable, AI-driven interview coaching.
-✅ **Empowers Freelancers** by enabling experts to earn from one-on-one interviews.
-✅ **Democratizes Interview Prep** by making structured coaching accessible to all.
-✅ **Supports Job Seekers in a Recession** by improving employability in a tough market.
+-  **Bridges the Skill Gap** by offering affordable, AI-driven interview coaching.
+-  **Empowers Freelancers** by enabling experts to earn from one-on-one interviews.
+-  **Democratizes Interview Prep** by making structured coaching accessible to all.
+-  **Supports Job Seekers in a Recession** by improving employability in a tough market.
 
 ---
 
@@ -129,11 +129,11 @@ GEMINI_AI_API_KEY=your_gemini_api_key
 
 ## 🔮 Future Prospects
 
-🔹 **Premium AI interview sessions & subscriptions**.
-🔹 **Integration with LinkedIn, GitHub, and job portals**.
-🔹 **AI-powered resume enhancement suggestions**.
-🔹 **Mobile app development** for wider accessibility.
-🔹 **Customized AI models for industry-specific interviews**.
+-  **Premium AI interview sessions & subscriptions**.
+-  **Integration with LinkedIn, GitHub, and job portals**.
+-  **AI-powered resume enhancement suggestions**.
+-  **Mobile app development** for wider accessibility.
+-  **Customized AI models for industry-specific interviews**.
 
 
 ---
