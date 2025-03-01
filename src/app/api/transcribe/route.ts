@@ -61,7 +61,7 @@ export async function POST(req: NextRequest) {
     let status = transcription.status;
 
     while (status === "processing" || status === "queued") {
-      await new Promise((resolve) => setTimeout(resolve, 1000)); // Wait 1 second
+      await new Promise((resolve) => setTimeout(resolve, 2000)); // Wait 1 second
       result = await client.transcripts.get(transcription.id);
       status = result.status;
       console.log("Current status:", status);

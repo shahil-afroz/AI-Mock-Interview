@@ -7,14 +7,15 @@ import {getExperiences} from '../../actions/addExperience'
 import { useParams } from 'next/navigation';
 import { getPersonalProfiles } from '@/app/actions/addPersonalProfile';
 import { getSkill } from '@/app/actions/addSkills';
+import RatingsChart from '@/components/chart';
+import Link from 'next/link';
 
 export default function ProfilePage() {
     const router = useRouter();
     const { userid } = useParams();
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState(null);
     console.log(userid);
-    
-    // Remove manual arrays and rely on fetched data only
-    
     const [data, setData] = useState({
         // Default values before data fetches
         name: "",
@@ -26,6 +27,7 @@ export default function ProfilePage() {
         Linkedin: "",
         Twitter: "",
         dob: "",
+        resume:"",
         languages: [],
         frameworks: [],
         tools: []
@@ -35,33 +37,66 @@ export default function ProfilePage() {
     const [skills, setSkills] = useState([]);
     
     useEffect(() => {
+        let isMounted = true;
+        
         const fetchData = async () => {
+            if (!userid) return;
+            
+            setIsLoading(true);
+            setError(null);
+            
             try {
-                const experienceResponse = await getExperiences(userid);
-                const profileResponse = await getPersonalProfiles(userid);
-                const skillsResponse = await getSkill(userid);
+                // Use Promise.all to make all requests in parallel
+                const [profileResponse, experiencesResponse, skillsResponse] = await Promise.all([
+                    fetch(`/api/getProfile/${userid}`).then(res => {
+                        if (!res.ok) throw new Error('Failed to fetch profile');
+                        console.log(res);
+                        return res.json();
+
+                    }),
+                    fetch(`/api/experiences/${userid}`).then(res => {
+                        if (!res.ok) throw new Error('Failed to fetch experiences');
+                        return res.json();
+                    }),
+                    // fetch(`/api/skills/${userid}`).then(res => {
+                    //     if (!res.ok) throw new Error('Failed to fetch skills');
+                    //     return res.json();
+                    // })
+                ]);
                 
-                if (profileResponse && profileResponse.getProfile) {
-                    setData(profileResponse.getProfile);
+                // Only update state if component is still mounted
+                if (isMounted) {
+                    if (profileResponse && profileResponse.success && profileResponse.profile) {
+                        setData(profileResponse.profile);
+                    }
+                    
+                    if (experiencesResponse && experiencesResponse.success) {
+                        setExperiences(experiencesResponse.experiences || []);
+                        console.log(experiencesResponse.experiences);
+                    }
+                    
+                    // if (skillsResponse && skillsResponse.success) {
+                    //     setSkills(skillsResponse.skills || []);
+                    // }
                 }
-                
-                if (experienceResponse) {
-                    setExperiences(experienceResponse);
-                }
-                
-                if (skillsResponse) {
-                    setSkills(skillsResponse);
-                }
-                
-                console.log('experiences:', experienceResponse);
-                console.log('profile:', profileResponse.getProfile);
-                console.log('skills:', skillsResponse);
             } catch (error) {
                 console.error("Error fetching data:", error);
+                if (isMounted) {
+                    setError(error.message || "An error occurred while fetching data");
+                }
+            } finally {
+                if (isMounted) {
+                    setIsLoading(false);
+                }
             }
         };
         
         fetchData();
+        
+        // Cleanup function to prevent memory leaks
+        return () => {
+            isMounted = false;
+        };
     }, [userid]);
     
     // Format date for display
@@ -90,6 +125,13 @@ export default function ProfilePage() {
     return (
         <div className="min-h-screen bg-[#232a34]">
             <Navbar />
+            <Link
+  href="/dashboard/EditProfile"
+  className="bg-gradient-to-r from-blue-600 to-blue-400 hover:from-blue-700 hover:to-blue-500 text-white text-lg font-semibold px-5 py-2 rounded-lg shadow-md transition-all duration-300 ease-in-out transform hover:scale-105 border border-blue-500"
+>
+  Edit Profile
+</Link>
+
 
             <main className="container mx-auto px-6 py-8 bg-[#232a34]">
                 <div className="rounded-xl shadow-md overflow-hidden mb-8 border-2 border-[#01a2e9]">
@@ -98,7 +140,7 @@ export default function ProfilePage() {
                             <div className="relative">
                                 <img
                                     className="h-32 w-32 rounded-full border-4 object-cover"
-                                    src={data.ProfileImage || "/api/placeholder/150/150"}
+                                    src={data.ProfileImage || "hbjjhvh"}
                                     alt="Profile"
                                 />
                                 <div className="absolute bottom-0 right-0 bg-green-400 h-4 w-4 rounded-full border-2 border-white"></div>
@@ -116,10 +158,11 @@ export default function ProfilePage() {
                             </div>
 
                             <div className="mt-4 w-full">
-                                <button className="w-full flex items-center justify-center bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition">
-                                    <FileText className="h-5 w-5 mr-2" />
+                                <Link className="w-full flex items-center justify-center bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition"
+                                href={data.resume}>
+                                    
                                     View Resume
-                                </button>
+                                </Link>
                             </div>
 
                             <div className="mt-6 flex space-x-4">
@@ -148,7 +191,7 @@ export default function ProfilePage() {
                                         <Star className="h-6 w-6 text-amber-500" />
                                     </div>
                                     <div>
-                                        <div className="text-2xl font-bold text-gray-800">{data.AvgRating || 0}</div>
+                                        <div className="text-2xl font-bold text-gray-800">{data.AvgRating || "3 Star"}</div>
                                         <div className="text-sm text-gray-500">Rating</div>
                                     </div>
                                 </div>
@@ -168,8 +211,8 @@ export default function ProfilePage() {
                                         <MessageSquare className="h-6 w-6 text-red-500" />
                                     </div>
                                     <div>
-                                        <div className="text-2xl font-bold text-gray-800">324</div>
-                                        <div className="text-sm text-gray-500">Total Interview</div>
+                                        <div className="text-2xl font-bold text-gray-800">3</div>
+                                        <div className="text-sm text-gray-500">Attempted Mock Interviews</div>
                                     </div>
                                 </div>
                             </div>
@@ -341,84 +384,7 @@ export default function ProfilePage() {
                                     <div className="bg-[#232a34] p-6 rounded-lg shadow-sm border border-[#01a2e9]">
                                         <h3 className="text-lg font-bold text-white mb-4">Monthly Activity</h3>
 
-                                        <div className="flex flex-col h-64">
-                                            <div className="flex justify-between items-end mb-2 h-48 border-b border-[#01a2e9] pb-2">
-                                                {/* Jan */}
-                                                <div className="flex flex-col items-center">
-                                                    <div className="relative flex justify-center space-x-1 w-12">
-                                                        <div className="w-3 bg-indigo-500" style={{ height: '30%' }}></div>
-                                                        <div className="w-3 bg-green-500" style={{ height: '60%' }}></div>
-                                                        <div className="w-3 bg-amber-500" style={{ height: '90%' }}></div>
-                                                    </div>
-                                                    <div className="text-xs mt-1 text-white">Jan</div>
-                                                </div>
-
-                                                {/* Feb */}
-                                                <div className="flex flex-col items-center">
-                                                    <div className="relative flex justify-center space-x-1 w-12">
-                                                        <div className="w-3 bg-indigo-500" style={{ height: '40%' }}></div>
-                                                        <div className="w-3 bg-green-500" style={{ height: '50%' }}></div>
-                                                        <div className="w-3 bg-amber-500" style={{ height: '75%' }}></div>
-                                                    </div>
-                                                    <div className="text-xs mt-1 text-white">Feb</div>
-                                                </div>
-
-                                                {/* Mar */}
-                                                <div className="flex flex-col items-center">
-                                                    <div className="relative flex justify-center space-x-1 w-12">
-                                                        <div className="w-3 bg-indigo-500" style={{ height: '60%' }}></div>
-                                                        <div className="w-3 bg-green-500" style={{ height: '45%' }}></div>
-                                                        <div className="w-3 bg-amber-500" style={{ height: '85%' }}></div>
-                                                    </div>
-                                                    <div className="text-xs mt-1 text-white">Mar</div>
-                                                </div>
-
-                                                {/* Apr */}
-                                                <div className="flex flex-col items-center">
-                                                    <div className="relative flex justify-center space-x-1 w-12">
-                                                        <div className="w-3 bg-indigo-500" style={{ height: '50%' }}></div>
-                                                        <div className="w-3 bg-green-500" style={{ height: '55%' }}></div>
-                                                        <div className="w-3 bg-amber-500" style={{ height: '100%' }}></div>
-                                                    </div>
-                                                    <div className="text-xs mt-1 text-white">Apr</div>
-                                                </div>
-
-                                                {/* May */}
-                                                <div className="flex flex-col items-center">
-                                                    <div className="relative flex justify-center space-x-1 w-12">
-                                                        <div className="w-3 bg-indigo-500" style={{ height: '80%' }}></div>
-                                                        <div className="w-3 bg-green-500" style={{ height: '65%' }}></div>
-                                                        <div className="w-3 bg-amber-500" style={{ height: '130%' }}></div>
-                                                    </div>
-                                                    <div className="text-xs mt-1 text-white">May</div>
-                                                </div>
-
-                                                {/* Jun */}
-                                                <div className="flex flex-col items-center">
-                                                    <div className="relative flex justify-center space-x-1 w-12">
-                                                        <div className="w-3 bg-indigo-500" style={{ height: '70%' }}></div>
-                                                        <div className="w-3 bg-green-500" style={{ height: '70%' }}></div>
-                                                        <div className="w-3 bg-amber-500" style={{ height: '110%' }}></div>
-                                                    </div>
-                                                    <div className="text-xs mt-1 text-white">Jun</div>
-                                                </div>
-                                            </div>
-
-                                            <div className="flex justify-center space-x-4 mt-2">
-                                                <div className="flex items-center">
-                                                    <div className="h-3 w-3 bg-indigo-500 mr-1"></div>
-                                                    <span className="text-xs text-white">Posts</span>
-                                                </div>
-                                                <div className="flex items-center">
-                                                    <div className="h-3 w-3 bg-green-500 mr-1"></div>
-                                                    <span className="text-xs text-white">Comments</span>
-                                                </div>
-                                                <div className="flex items-center">
-                                                    <div className="h-3 w-3 bg-amber-500 mr-1"></div>
-                                                    <span className="text-xs text-white">Likes</span>
-                                                </div>
-                                            </div>
-                                        </div>
+                                      <RatingsChart/>
                                     </div>
                                 </div>
                             </div>

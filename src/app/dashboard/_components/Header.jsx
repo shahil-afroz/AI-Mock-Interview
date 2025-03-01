@@ -16,7 +16,7 @@ function Header() {
     <>
      <div>
      <Navbar/>
-      <UserButton/>
+      
 
   
     <header className="bg-[#1a4562] text-white py-4 shadow-md">

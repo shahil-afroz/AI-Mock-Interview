@@ -65,10 +65,12 @@ function Feedback() {
                                         <strong>Your Answer:</strong> {item.userAnswer}
                                     </p>
                                     <p className="bg-green-50 border border-green-200 text-green-800 p-3 rounded mb-2">
-                                        <strong>Correct Answer:</strong> {item.correctAnswer}
+                                        <strong>Your Answer feedback:</strong> {item.Intervieweefeedback
+}
                                     </p>
                                     <p className="bg-purple-50 border border-purple-200 text-purple-800 p-3 rounded">
-                                        <strong>Feedback:</strong> {item.feedback}
+                                        <strong>Feedback:</strong> {item.Intervieweerating
+                                        }
                                     </p>
                                 </div>
                             </CollapsibleContent>

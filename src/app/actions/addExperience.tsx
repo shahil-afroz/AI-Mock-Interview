@@ -1,6 +1,5 @@
 "use server";
 import { currentUser } from "@clerk/nextjs/server";
-import { findUserbyId } from "@/data/FindUser";
 import { db } from "@/lib/db";
 import * as z from "zod";
 
@@ -32,8 +31,11 @@ export const addExperiences = async (
 
     const experiences = await db.$transaction(
       validatedData.experiences.map((experience) =>
-        db.experience.create({
-          data: {
+        db.experience.update({
+          where:{
+            userId:user.id
+          },
+        data: {
          
             CompanyName: experience.company,
             Duration: experience.duration,
