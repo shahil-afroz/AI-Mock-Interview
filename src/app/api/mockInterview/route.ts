@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
         jobDesc,
         jobPosition,
         jobexperience,
-        MockResponse:MockResponse,
+        MockResponse:MockResponse.interviewQuestions,
         userId: user.id,
       },
     });

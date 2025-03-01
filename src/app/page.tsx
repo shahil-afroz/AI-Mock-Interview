@@ -2,6 +2,7 @@ import React from 'react';
 import { Button } from "@/components/ui/button";
 import Footer from '@/app/dashboard/_components/Footer'
 import Navbar from '@/app/dashboard/_components/navbar';
+import Link from 'next/link';
 
 const Home = () => {
   return (
@@ -31,16 +32,14 @@ const Home = () => {
               personalized feedback powered by advanced AI technology.
             </p>
             <div className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Button
-                className="w-full sm:w-auto px-8 py-6 bg-blue-600 hover:bg-blue-700 text-white text-lg font-semibold rounded-xl transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-blue-200"
-              >
+              <Link
+                className="w-full sm:w-auto px-8 py-6 bg-blue-600 hover:bg-blue-700 text-white text-lg font-semibold rounded-xl transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-blue-200" href={'/dashboard'}              >
                 Start Your Journey
-              </Button>
-              <Button
-                className="w-full sm:w-auto px-8 py-6 bg-gray-100 hover:bg-gray-200 text-gray-900 text-lg font-semibold rounded-xl transform hover:scale-105 transition-all duration-300 shadow-lg"
-              >
+              </Link>
+              <Link
+                className="w-full sm:w-auto px-8 py-6 bg-gray-100 hover:bg-gray-200 text-gray-900 text-lg font-semibold rounded-xl transform hover:scale-105 transition-all duration-300 shadow-lg" href={'/about'}              >
                 Learn More
-              </Button>
+              </Link>
             </div>
           </div>
         </div>

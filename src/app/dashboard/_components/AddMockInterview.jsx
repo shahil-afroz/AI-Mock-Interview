@@ -130,9 +130,9 @@ function AddMockInterview() {
           <DialogHeader>
             <DialogTitle>Tell us more about yourself</DialogTitle>
             <DialogDescription className="flex flex-col">
-              <h3 className="text-xl font-semibold">
+              <p className="text-xl font-semibold">
                 Add details about your job position/role and experience
-              </h3>
+              </p>
               <form onSubmit={onSubmit}>
                 {/* Role Input */}
                 <span className="flex flex-col mt-3">

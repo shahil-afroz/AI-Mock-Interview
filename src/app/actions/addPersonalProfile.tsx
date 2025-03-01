@@ -42,9 +42,12 @@ export const addPersonalProfile = async (data: SkillData) => {
     : "male"; // Default fallback
 
   try {
-    const profile = await db.user.create({
+    const profile = await db.user.update({
+      where:{
+        id:user.id
+      },
       data: {
-        id: user.id, // Ensure `user.id` is not null
+       // Ensure `user.id` is not null
         name: data.Name,
         email: data.email,
         Gender: formattedGender, // Ensure correct enum value
@@ -67,13 +70,7 @@ export const addPersonalProfile = async (data: SkillData) => {
 
 export const getPersonalProfiles=async(userId:any)=>{
   try {
-
-   
-
-
-
-    const getProfile=await db.user.findMany(
-
+  const getProfile=await db.user.findUnique(
       {
         where:{
           id:userId

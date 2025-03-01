@@ -1,8 +1,16 @@
+"use client"
 import React from 'react'
 import { Button } from '../../../components/ui/button'
-import { link } from 'fs'
+import { useUser, UserButton } from '@clerk/nextjs';
+import Link from 'next/link';
 
 function Navbar() {
+  const { isSignedIn,user } = useUser(); 
+  React.useEffect(() => {
+    if (user) {
+      console.log("User ID:", user.id); // Ensure user is defined before accessing properties
+    }
+  }, [user]); 
   let links=[
     {
        link:"Home",
@@ -15,7 +23,11 @@ function Navbar() {
     {
         link:"Contact",
        path:"/contact"
-    }
+    },
+    {
+      link:"Dashboard",
+     path:"/dashboard"
+  }
   ]
   return (
     <div>
@@ -24,11 +36,11 @@ function Navbar() {
   <div className="flex items-center justify-between h-20">
     {/* Logo */}
     <div className="flex items-center space-x-3">
-      <div className="w-10 h-10 bg-[#01a2e9] rounded-full flex items-center justify-center transform hover:scale-105 transition-transform duration-300">
-        <span className="text-white text-xl font-bold">F</span>
+      <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center transform hover:scale-105 transition-transform duration-300">
+        <img src="./logo.jpg" alt="" className='rounded-full'/>
       </div>
       <span className="text-xl font-bold text-white">
-        Master Your Interviews
+      ExcelInterview.AI
       </span>
     </div>
     {/* Desktop Navigation */}
@@ -42,12 +54,40 @@ function Navbar() {
           {link.link}
         </a>
       ))}
-      <Button
-        className="bg-[#232a34] hover:bg-blue-800 text-blue-400 text-xl px-4 py-1 rounded-sm border-b-2 border-[#106c99] font-medium uppercase tracking-wider"
-      >
-        Get Started
-      </Button>
-    </div>
+       {isSignedIn ? (
+       <div className="flex items-center space-x-4">
+       <UserButton />
+       <Link
+  href={`/profile/${user.id}`}
+  className="relative bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-indigo-600 hover:to-blue-600 text-white text-lg font-semibold px-6 py-2 rounded-full shadow-lg backdrop-blur-md transition-all duration-300 ease-in-out transform hover:scale-110 border border-white/20 flex items-center gap-2"
+>
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    fill="none"
+    viewBox="0 0 24 24"
+    strokeWidth={2}
+    stroke="currentColor"
+    className="w-5 h-5"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M5.121 17.804A9 9 0 1112 21a9 9 0 01-6.879-3.196M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+    />
+  </svg>
+  View Profile
+</Link>
+
+     </div>
+     
+                
+              ) : (
+                
+                  <Link className="bg-[#232a34] hover:bg-blue-800 text-blue-400 text-xl px-4 py-1 rounded-sm border-b-2 border-[#106c99] font-medium uppercase tracking-wider" href={'/sign-in'}>
+                    Get Started
+                  </Link>
+                
+              )}
     {/* Mobile menu button */}
     <div className="md:hidden">
       <Button
@@ -60,6 +100,7 @@ function Navbar() {
       </Button>
     </div>
   </div>
+</div>
 </div>
 </nav>
     </div>
