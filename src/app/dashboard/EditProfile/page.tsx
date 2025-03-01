@@ -5,7 +5,7 @@ import { Calendar, Mail, Linkedin, MessageSquare, Info, X } from 'lucide-react';
 import { DropEvent, FileRejection, useDropzone } from 'react-dropzone';
 import Experience from '../_components/Experience';
 import Skills from '../_components/Skills'
-import { addPersonalProfile } from '@/app/actions/addPersonalProfile';
+import { addPersonalProfile } from '../../actions/addPersonalProfile';
 
 interface FormData {
   Name: string;
