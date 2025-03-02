@@ -1,10 +1,42 @@
-import React from 'react';
+'use client'
+import {useEffect}from 'react';
 import { Button } from "@/components/ui/button";
 import Footer from '@/app/dashboard/_components/Footer'
 import Navbar from '@/app/dashboard/_components/navbar';
 import Link from 'next/link';
+import { useUser } from "@clerk/nextjs";
+
+
+
 
 const Home = () => {
+  const user=useUser();
+   useEffect(() => {
+      if (user) {
+        saveUserToDB(user);
+      }
+    }, [user]);
+
+    const saveUserToDB = async (user: any) => {
+      console.log("I am BATMAN :",user);
+      console.log("I am BATMAN :",user.user?.emailAddresses[0]?.emailAddress);
+      try {
+        await fetch("/api/save-user", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            id: user.user.id,
+            email: user.user.emailAddresses[0].emailAddress,
+            name: user.user.fullName,
+            image: user.user.imageUrl,
+          }),
+        });
+      } catch (error) {
+        console.log("Error saving user:", error.message|| error);
+      }
+    };
   return (
     <div className="relative min-h-screen font-sans ">
       {/* Navbar */}

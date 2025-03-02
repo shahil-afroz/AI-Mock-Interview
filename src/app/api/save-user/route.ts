@@ -12,16 +12,17 @@ export async function POST(req: Request) {
 
     if (!existingUser) {
       // Insert new user into the database
-      await db.user.create({
+    const user_1 =  await db.user.create({
         data: {
           id,
-          email:email.emailAddress,
+          email:email,
           name,
           ProfileImage: image, // Ensure the field name matches your DB schema
         },
       });
+      console.log("user", user_1);
     }
-
+  
     return NextResponse.json({ message: "User saved successfully" }, { status: 200 });
   } catch (error) {
     return NextResponse.json({ message: "Error saving user", error }, { status: 500 });

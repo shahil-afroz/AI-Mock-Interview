@@ -1,5 +1,6 @@
 import AddMockInterview from './_components/AddMockInterview'
 import Footer from './_components/Footer'
+import AllInterviews from './_components/allInterviews'
 
 function page() {
   return (
@@ -34,12 +35,10 @@ function page() {
           <AddMockInterview />
         </div>
         
-        <div className='grid grid-cols-1 md:grid-cols-3 my-5 gap-4 py-10'>
-          {/* This area will hold interview cards */}
-        </div>
+    
         
         <div className='py-10'>
-          {/* <AllInterview/> */}
+          <AllInterviews/>
         </div>
         
         <Footer/>

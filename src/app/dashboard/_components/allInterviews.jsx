@@ -31,7 +31,7 @@ function AllInterviews() {
     
   return (
     <div className=" mx-auto px-4 py-8">
-    <h1 className="text-3xl font-extrabold text-gray-800 mb-6 text-center">
+    <h1 className="text-3xl font-extrabold text-gray-200 mb-6 text-center">
         Previous Interview Lists
     </h1>
     {InterviewList.length==0 && 

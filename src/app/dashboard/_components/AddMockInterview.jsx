@@ -8,7 +8,6 @@ import {
   DialogHeader,
   DialogTitle
 } from "@/components/ui/dialog";
-import { useUser } from "@clerk/nextjs";
 import { LoaderPinwheelIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -17,15 +16,6 @@ import { chatSession } from "../../../lib/AI/GeminiAIModel";
 
 function AddMockInterview() {
 
-  const { user } = useUser();
-
-  // console.log('user',user);
-
-  useEffect(() => {
-    if (user) {
-      saveUserToDB(user);
-    }
-  }, [user]);
 
   const saveUserToDB = async (user) => {
     console.log("I am BATMAN :",user);
