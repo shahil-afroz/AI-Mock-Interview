@@ -49,8 +49,9 @@ export default function ProfilePage() {
                 // Use Promise.all to make all requests in parallel
                 const [profileResponse, experiencesResponse, skillsResponse] = await Promise.all([
                     fetch(`/api/getProfile/${userid}`).then(res => {
+
                         if (!res.ok) throw new Error('Failed to fetch profile');
-                        console.log(res);
+                       
                         return res.json();
 
                     }),
@@ -58,29 +59,25 @@ export default function ProfilePage() {
                         if (!res.ok) throw new Error('Failed to fetch experiences');
                         return res.json();
                     }),
-                    // fetch(`/api/skills/${userid}`).then(res => {
-                    //     if (!res.ok) throw new Error('Failed to fetch skills');
-                    //     return res.json();
-                    // })
+                  
                 ]);
                 
                 // Only update state if component is still mounted
                 if (isMounted) {
                     if (profileResponse && profileResponse.success && profileResponse.profile) {
+                        console.log("profile akash dudh",profileResponse);
                         setData(profileResponse.profile);
                     }
                     
                     if (experiencesResponse && experiencesResponse.success) {
                         setExperiences(experiencesResponse.experiences || []);
-                        console.log(experiencesResponse.experiences);
+                        console.log('experiences',experiencesResponse.experiences);
                     }
                     
-                    // if (skillsResponse && skillsResponse.success) {
-                    //     setSkills(skillsResponse.skills || []);
-                    // }
+                    
                 }
             } catch (error) {
-                console.error("Error fetching data:", error);
+                console.log("Error fetching data:", error.message||error);
                 if (isMounted) {
                     setError(error.message || "An error occurred while fetching data");
                 }
@@ -158,11 +155,11 @@ export default function ProfilePage() {
                             </div>
 
                             <div className="mt-4 w-full">
-                                <Link className="w-full flex items-center justify-center bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition"
-                                href={data.resume}>
+                               {data?.resume ?(  <Link className="w-full flex items-center justify-center bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition"
+                                href={data?.resume}>
                                     
                                     View Resume
-                                </Link>
+                                </Link>):(<p></p>)}
                             </div>
 
                             <div className="mt-6 flex space-x-4">
