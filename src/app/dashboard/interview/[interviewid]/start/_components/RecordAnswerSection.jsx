@@ -117,45 +117,51 @@ function RecordAnswerSection({ mockInterviewQuestion, activeQuestionIndex, inter
       toast.warning("Answer is too short to be saved");
       return;
     }
-
+  
     setLoading(true);
     try {
       const feedbackPrompt = `Question: ${mockInterviewQuestion[activeQuestionIndex]?.question}, User Answer: ${userAnswer}.
       Give rating, feedback for improvement, and correct answer in JSON format with key correctAnswer`;
 
+  
       const result = await chatSession.sendMessage(feedbackPrompt);
       const responseText = result.response.text();
-
-      // More robust JSON extraction
+      console.log('userAnswer',userAnswer);
+  
       let jsonData;
       try {
-        // Try to parse the whole response first
-        jsonData = JSON.parse(responseText);
-      } catch {
-        // If that fails, try to extract JSON from code blocks
+        // Extract JSON using regex or fallback
         const jsonMatch = responseText.match(/```(?:json)?([\s\S]*?)```/);
-        if (jsonMatch && jsonMatch[1]) {
-          jsonData = JSON.parse(jsonMatch[1].trim());
-        } else {
-          // Last attempt: clean the string and try again
-          const cleanedResponse = responseText.replace(/```json/g, "").replace(/```/g, "").trim();
+        const cleanedResponse = jsonMatch ? jsonMatch[1].trim() : responseText.trim();
+        console.log('cleanedResponse',cleanedResponse);
+  
+        // Ensure it is valid JSON before parsing
+        if (cleanedResponse.startsWith("{") && cleanedResponse.endsWith("}")) {
           jsonData = JSON.parse(cleanedResponse);
+        } else {
+          throw new Error("Invalid JSON format received from AI model.");
         }
+      } catch (error) {
+        console.error("JSON Parsing Error:", error);
+        toast.error("Error parsing AI response. Please try again.");
+        setLoading(false);
+        return;
       }
-
+  
       const mockUserAns = {
         mockInterviewId: interviewid,
         question: mockInterviewQuestion[activeQuestionIndex]?.question,
+        answer: mockInterviewQuestion[activeQuestionIndex]?.answer,
         userAnswer,
         feedback: jsonData,
       };
-
+  
       const response = await fetch(`/api/mock/${interviewid}/ans`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(mockUserAns),
       });
-
+  
       if (response.ok) {
         toast.success("Answer saved successfully!");
       } else {
@@ -169,6 +175,7 @@ function RecordAnswerSection({ mockInterviewQuestion, activeQuestionIndex, inter
       setLoading(false);
     }
   };
+  
 
   return (
     <div className="flex flex-col items-center space-y-6">
