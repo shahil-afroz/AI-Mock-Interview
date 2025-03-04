@@ -1,7 +1,5 @@
 import { AssemblyAI } from "assemblyai";
-import fs from "fs";
 import { NextRequest, NextResponse } from "next/server";
-import path from "path";
 
 const client = new AssemblyAI({
   apiKey: process.env.ASSEMBLY_AI_API_KEY!,
@@ -18,42 +16,26 @@ export async function POST(req: NextRequest) {
 
     console.log("Received audio file:", file.name, file.size, file.type);
 
-    // Convert File to Buffer and save in /public/audio for persistent storage
+    // Convert File to Buffer
     const buffer = Buffer.from(await file.arrayBuffer());
-    const filename = `audio-${Date.now()}.wav`;
-    const audioDir = path.join(process.cwd(), "public", "audio");
-
-    // Ensure /public/audio exists
-    if (!fs.existsSync(audioDir)) {
-      fs.mkdirSync(audioDir, { recursive: true });
-    }
-
-    const audioPath = path.join(audioDir, filename);
-    fs.writeFileSync(audioPath, buffer);
-    console.log("Saved audio file at:", audioPath);
-
-    // Audio URL for download
-    const audioUrl = `/audio/${filename}`;
 
     console.log("Uploading to AssemblyAI...");
-    const fileStream = fs.createReadStream(audioPath);
-    const uploadResponse = await client.files.upload(fileStream);
+    const uploadResponse = await client.files.upload(buffer);
 
-    console.log("Upload response:", uploadResponse);
-    if (!uploadResponse) {
+    if (!uploadResponse || !uploadResponse.upload_url) {
       console.error("Upload failed, received response:", uploadResponse);
       return NextResponse.json({ error: "Failed to upload file to AssemblyAI" }, { status: 500 });
     }
 
-    console.log("Upload successful, URL:", uploadResponse);
+    console.log("Upload successful, URL:", uploadResponse.upload_url);
 
     // Request transcription
     console.log("Requesting transcription...");
     const transcription = await client.transcripts.transcribe({
-      audio: uploadResponse,
+      audio: uploadResponse.upload_url,
     });
 
-    console.log("Transcription requested, ID:", transcription);
+    console.log("Transcription requested, ID:", transcription.id);
 
     // Poll for transcription results
     console.log("Polling for results...");
@@ -61,7 +43,7 @@ export async function POST(req: NextRequest) {
     let status = transcription.status;
 
     while (status === "processing" || status === "queued") {
-      await new Promise((resolve) => setTimeout(resolve, 2000)); // Wait 1 second
+      await new Promise((resolve) => setTimeout(resolve, 2000)); // Wait 2 seconds
       result = await client.transcripts.get(transcription.id);
       status = result.status;
       console.log("Current status:", status);
@@ -75,13 +57,12 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    console.log("Transcription complete:", transcription.text + "...");
+    console.log("Transcription complete:", result.text);
 
     return NextResponse.json({
-      transcript: transcription?.text,
-      words: transcription?.words,
-      confidence: transcription?.confidence,
-      audioUrl, // Send audio download URL
+      transcript: result.text,
+      words: result.words,
+      confidence: result.confidence,
     });
   } catch (error) {
     console.error("Transcription error:", error);

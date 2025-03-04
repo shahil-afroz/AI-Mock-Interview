@@ -60,7 +60,8 @@ const RatingsChart = () => {
         const ratings: number[] = [];
 
         data.ratings.forEach((rating, index) => {
-          const label = `${rating.jobPosition} #${index + 1}`;
+          // Use shorter labels for x-axis compression
+          const label = `${rating.jobPosition.slice(0, 8)}#${index + 1}`;
           labels.push(label);
           const ratingValue =
             rating.answers.length > 0 ? rating.answers[0].Intervieweerating : 0;
@@ -87,8 +88,8 @@ const RatingsChart = () => {
               pointBackgroundColor: "rgba(255, 255, 255, 1)", // White points
               pointBorderColor: "rgba(75, 192, 192, 1)",
               pointBorderWidth: 2,
-              pointRadius: 5, // Larger points
-              pointHoverRadius: 8, // Larger on hover
+              pointRadius: 4, // Slightly smaller points
+              pointHoverRadius: 6, // Smaller on hover
             },
           ],
         });
@@ -105,32 +106,38 @@ const RatingsChart = () => {
   // Chart options
   const options = {
     responsive: true,
+    maintainAspectRatio: false, // Allow chart to be compressed
     plugins: {
       legend: {
         position: "top" as const,
         labels: {
           font: {
-            size: 14,
+            size: 12, // Smaller font
             family: "Arial",
           },
           color: "#333",
+          boxWidth: 10, // Smaller legend box
         },
       },
       title: {
         display: true,
         text: "Interviewer Ratings by Job Position",
         font: {
-          size: 20,
+          size: 16, // Smaller title
           family: "Arial",
           weight: "bold" as const,
         },
         color: "#333",
+        padding: {
+          top: 5,
+          bottom: 5
+        }
       },
       tooltip: {
         backgroundColor: "rgba(0, 0, 0, 0.8)",
-        titleFont: { size: 14 },
-        bodyFont: { size: 12 },
-        padding: 10,
+        titleFont: { size: 12 },
+        bodyFont: { size: 11 },
+        padding: 8,
       },
     },
     scales: {
@@ -141,7 +148,7 @@ const RatingsChart = () => {
           display: true,
           text: "Rating",
           font: {
-            size: 14,
+            size: 12,
             family: "Arial",
           },
           color: "#666",
@@ -149,13 +156,19 @@ const RatingsChart = () => {
         grid: {
           color: "rgba(200, 200, 200, 0.3)",
         },
+        ticks: {
+          font: {
+            size: 10
+          },
+          padding: 2
+        }
       },
       x: {
         title: {
           display: true,
           text: "Job Position",
           font: {
-            size: 14,
+            size: 12,
             family: "Arial",
           },
           color: "#666",
@@ -163,11 +176,26 @@ const RatingsChart = () => {
         grid: {
           display: false, // Hide X-axis grid lines for cleaner look
         },
+        ticks: {
+          font: {
+            size: 9, // Smaller x-axis labels
+          },
+          maxRotation: 45, // Rotate labels to save horizontal space
+          minRotation: 45,
+          padding: 2
+        }
       },
     },
+    layout: {
+      padding: {
+        left: 5,
+        right: 5,
+        top: 0,
+        bottom: 0
+      }
+    },
     animation: {
-      duration: 1500, // Smooth animation
-      easing: "easeInOutQuart" as const,
+      duration: 1000, // Faster animation
     },
   };
 
@@ -176,8 +204,10 @@ const RatingsChart = () => {
   if (!chartData) return <div className="text-center text-gray-500">No data available</div>;
 
   return (
-    <div className="w-full max-w-4xl mx-auto p-6 bg-white shadow-lg rounded-lg">
-      <Line data={chartData} options={options} />
+    <div className="w-full mx-auto bg-white shadow-lg rounded-lg">
+      <div className="h-64">
+        <Line data={chartData} options={options} />
+      </div>
     </div>
   );
 };

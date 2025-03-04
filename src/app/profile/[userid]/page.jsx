@@ -378,7 +378,7 @@ export default function ProfilePage() {
                                         </div>
                                     </div>
 
-                                    <div className="bg-[#232a34] p-6 rounded-lg shadow-sm border border-[#01a2e9]">
+                                    <div>
                                         <h3 className="text-lg font-bold text-white mb-4">Monthly Activity</h3>
 
                                       <RatingsChart/>
