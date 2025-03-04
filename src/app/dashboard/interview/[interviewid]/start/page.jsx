@@ -126,6 +126,7 @@ function StartInterview() {
         <div className="bg-white p-6 rounded-lg shadow-md">
           <RecordAnswerSection
             mockInterviewQuestion={mockInterviewQuestion}
+            // correctAnswers={}
             activeQuestionIndex={activeQuestionIndex}
             interviewid={interviewid}
           />

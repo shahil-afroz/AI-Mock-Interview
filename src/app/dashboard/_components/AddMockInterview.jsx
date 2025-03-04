@@ -48,7 +48,33 @@ function AddMockInterview() {
     setLoading(true);
     e.preventDefault();
 
-    const InputPrompt = `Job Position:${role}, Job Description:${jobdesc}:${years} years. Now make 5 interview questions for me and answers in JSON format.`;
+    const InputPrompt = `Job Position: ${role}, Job Description: ${jobdesc}, Experience Required: ${years} years. Generate exactly 5 interview questions and their corresponding answers in JSON format with the following structure:
+{
+  "interviewQuestions": [
+    {
+      "question": "Your question here",
+      "answer": "Your answer here"
+    },
+    {
+      "question": "Your question here",
+      "answer": "Your answer here"
+    },
+    {
+      "question": "Your question here",
+      "answer": "Your answer here"
+    },
+    {
+      "question": "Your question here",
+      "answer": "Your answer here"
+    },
+    {
+      "question": "Your question here",
+      "answer": "Your answer here"
+    }
+  ]
+}
+Ensure the response strictly follows this JSON structure without additional fields or formatting variations.`;
+
 
     try {
       if (!InputPrompt) return;
@@ -72,7 +98,7 @@ function AddMockInterview() {
         MockResponse: parsedResponse
       };
 
-      console.log(mockData)
+      console.log('mockData',mockData)
       // Save the response to the database
       const response = await fetch("/api/mockInterview", {
         method: "POST",
