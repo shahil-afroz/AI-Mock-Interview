@@ -7,7 +7,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     // console.log('Received request body:', body);
 
-    const { jobDesc, jobPosition, jobexperience, MockResponse } = body;
+    const { jobDesc, jobPosition, jobexperience, MockResponse,numQuestions,difficultyLevel } = body;
 
     // Check if mockResponse is an array of strings
     console.log("sahil pod",jobDesc,jobPosition,jobexperience,MockResponse)
@@ -32,6 +32,8 @@ export async function POST(request: NextRequest) {
         jobDesc,
         jobPosition,
         jobexperience,
+        numQuestions,
+        difficultyLevel,
         MockResponse:MockResponse.interviewQuestions,
         userId: user.id,
       },
