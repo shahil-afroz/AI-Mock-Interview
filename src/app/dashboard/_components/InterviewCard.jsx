@@ -14,14 +14,14 @@ function InterviewCard({ interview }) {
   return (
     <div 
       className="rounded-lg shadow-md p-5 hover:shadow-lg transition-shadow duration-300 hover:scale-105 flex flex-col backdrop-blur-md"
-      style={{ backgroundColor: 'rgba(124, 148, 148, 0.5)' }} // #7c9494 with more transparency for glassy effect
+      style={{ backgroundColor: 'rgba(80, 110, 150, 0.4)' }} // Lighter navy blue with transparency
     >
       <div className="mb-4">
         <h2 className="text-lg font-bold mb-1" style={{ color: '#01a1e8' }}>{interview.jobPosition}</h2>
-        <p className="text-sm text-gray-500">{interview.jobexperience} Years of Experience</p>
+        <p className="text-sm text-gray-200">{interview.jobexperience} Years of Experience</p>
       </div>
       
-      <div className="text-sm text-gray-600 mb-4">
+      <div className="text-sm text-gray-200 mb-4">
         <span className="font-semibold" style={{ color: '#01a1e8' }}>Created At: </span>
         {new Date(interview.createdAt).toLocaleDateString()}
       </div>
@@ -30,7 +30,7 @@ function InterviewCard({ interview }) {
         <Button
           size="sm"
           onClick={onStart}
-          className="bg-gray-200 text-gray-700 font-medium w-full hover:bg-gray-300 hover:text-black transition-colors"
+          className="bg-blue-500 text-white font-medium w-full hover:bg-blue-600 transition-colors"
         >
           Restart Interview
         </Button>
@@ -38,8 +38,8 @@ function InterviewCard({ interview }) {
           size="sm"
           variant="outline"
           onClick={getFeedback}
-          className="text-white font-medium w-full transition-colors"
-          style={{ backgroundColor: '#7c9494', borderColor: '#7c9494' }}
+          className="text-white font-medium w-full transition-colors border border-blue-300"
+          style={{ backgroundColor: 'rgba(1, 161, 232, 0.6)', borderColor: '#01a1e8' }}
         >
           View Feedback
         </Button>
