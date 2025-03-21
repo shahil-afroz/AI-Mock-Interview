@@ -9,7 +9,7 @@ export async function POST(req: NextRequest) {
   try {
     const formData = await req.formData();
     const file = formData.get("audio");
-
+    console.log("file : ",file);
     if (!(file instanceof File)) {
       return NextResponse.json({ error: "Invalid file uploaded" }, { status: 400 });
     }
@@ -21,18 +21,18 @@ export async function POST(req: NextRequest) {
 
     console.log("Uploading to AssemblyAI...");
     const uploadResponse = await client.files.upload(buffer);
-
-    if (!uploadResponse || !uploadResponse.upload_url) {
+    console.log("uploadResponse :",uploadResponse);
+    if (!uploadResponse) {
       console.error("Upload failed, received response:", uploadResponse);
       return NextResponse.json({ error: "Failed to upload file to AssemblyAI" }, { status: 500 });
     }
 
-    console.log("Upload successful, URL:", uploadResponse.upload_url);
+    console.log("Upload successful, URL:", uploadResponse);
 
     // Request transcription
     console.log("Requesting transcription...");
     const transcription = await client.transcripts.transcribe({
-      audio: uploadResponse.upload_url,
+      audio: uploadResponse,
     });
 
     console.log("Transcription requested, ID:", transcription.id);
@@ -41,7 +41,7 @@ export async function POST(req: NextRequest) {
     console.log("Polling for results...");
     let result;
     let status = transcription.status;
-
+    result = transcription
     while (status === "processing" || status === "queued") {
       await new Promise((resolve) => setTimeout(resolve, 2000)); // Wait 2 seconds
       result = await client.transcripts.get(transcription.id);
@@ -57,7 +57,7 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    console.log("Transcription complete:", result.text);
+    console.log("Transcription complete:", result);
 
     return NextResponse.json({
       transcript: result.text,

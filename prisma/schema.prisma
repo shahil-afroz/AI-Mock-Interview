@@ -79,6 +79,14 @@ model UserAnswer {
   createdAt           DateTime @default(now())
   Intervieweefeedback String
   Intervieweerating   Int
+  voiceTone            String
+  confidence           String
+  bodyLanguage          String
+  facialExpressions     String
+  speakingPace            String
+  overallPresentation     String
+  improvementSuggestions  String
+  videoUrl                 String
   // InterviewerFeedback String?
   // InterviewerRating   Int?
   // interviewerId       String

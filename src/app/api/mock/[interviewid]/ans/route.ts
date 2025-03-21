@@ -6,7 +6,7 @@ import { NextRequest, NextResponse } from "next/server";
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { question,answer, feedback, userAnswer, mockInterviewId } = body;
+    const { question,answer, feedback, userAnswer, mockInterviewId,videoUrl } = body;
     console.log("feedback", feedback.correctAnswer);
     console.log("userAnswer", userAnswer);
     console.log("mockInterviewId", mockInterviewId);
@@ -45,6 +45,21 @@ export async function POST(request: NextRequest) {
         data:{
           Intervieweerating: feedback?.rating,
           Intervieweefeedback: feedback?.feedback,
+          voiceTone:feedback?.videoAnalysis.voiceTone,
+          bodyLanguage:feedback?.videoAnalysis.bodyLanguage,
+          facialExpressions:feedback?.videoAnalysis.facialExpressions,
+          confidence:feedback?.videoAnalysis.confidence,
+          speakingPace:feedback?.videoAnalysis.speakingPace,
+          overallPresentation:feedback?.videoAnalysis.overallPresentation,
+          improvementSuggestions:feedback?.videoAnalysis.improvementSuggestions,
+          videoUrl,
+          
+
+
+
+
+
+
           
           userAnswer,
           correctAnswer: answer,
@@ -59,6 +74,14 @@ export async function POST(request: NextRequest) {
         question,
         Intervieweerating: feedback.rating,
         Intervieweefeedback: feedback.feedback,
+        voiceTone:feedback?.videoAnalysis.voiceTone,
+        bodyLanguage:feedback?.videoAnalysis.bodyLanguage,
+        facialExpressions:feedback?.videoAnalysis.facialExpressions,
+        confidence:feedback?.videoAnalysis.confidence,
+        speakingPace:feedback?.videoAnalysis.speakingPace,
+        overallPresentation:feedback?.videoAnalysis.overallPresentation,
+        improvementSuggestions:feedback?.videoAnalysis.improvementSuggestions,
+        videoUrl,
         userAnswer,
         userId,
         correctAnswer:answer,
