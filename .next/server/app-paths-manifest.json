@@ -1,0 +1,10 @@
+{
+  "/_not-found/page": "app/_not-found/page.js",
+  "/favicon.ico/route": "app/favicon.ico/route.js",
+  "/api/getAllRating/route": "app/api/getAllRating/route.js",
+  "/api/getProfile/[userId]/route": "app/api/getProfile/[userId]/route.js",
+  "/api/experiences/[userId]/route": "app/api/experiences/[userId]/route.js",
+  "/profile/[userid]/page": "app/profile/[userid]/page.js",
+  "/dashboard/EditProfile/page": "app/dashboard/EditProfile/page.js",
+  "/dashboard/page": "app/dashboard/page.js"
+}
