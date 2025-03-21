@@ -41,10 +41,16 @@ export async function POST(req: NextRequest) {
     console.log("Polling for results...");
     let result;
     let status = transcription.status;
-    result = transcription
+    // result = transcription
+
+    console.log("Current transcripts:", transcription);
+    if(status === "completed"){
+      result = transcription;
+    }else{
     while (status === "processing" || status === "queued") {
       await new Promise((resolve) => setTimeout(resolve, 2000)); // Wait 2 seconds
       result = await client.transcripts.get(transcription.id);
+      console.log("Current result:", result);
       status = result.status;
       console.log("Current status:", status);
 
@@ -56,7 +62,7 @@ export async function POST(req: NextRequest) {
         );
       }
     }
-
+  }
     console.log("Transcription complete:", result);
 
     return NextResponse.json({
