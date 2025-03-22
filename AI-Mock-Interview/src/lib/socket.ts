@@ -7,7 +7,7 @@ let socket: Socket | null = null;
 
 export const initializeSocket = () => {
   if (!socket) {
-    const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:3003';
+    const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL || 'https://ai-mock-interview-wpaa.onrender.com';
     socket = io(socketUrl, {
       withCredentials: true,
       autoConnect: true,
@@ -17,7 +17,7 @@ export const initializeSocket = () => {
     });
 
     socket.on('connect', () => {
-      console.log('Connected to WebSocket server with ID:', socket.id);
+      console.log('Connected to WebSocket server with ID:', socket?.id);
     });
 
     socket.on('connect_error', (err) => {
@@ -70,6 +70,7 @@ interface InterviewState {
   totalQuestions: number;
   timeRemaining: number;
   inProgress: boolean;
+  interviewComplete: boolean;
   isSubmitted: boolean;
   usersInRoom: User[];
   submittedUsers: Set<string>;
@@ -82,6 +83,7 @@ interface InterviewState {
   setCurrentAnswer: (answer: string) => void;
   nextQuestion: () => void;
   resetState: () => void;
+  completeInterview: () => void;
 }
 
 // Zustand store for interview state
@@ -96,6 +98,7 @@ export const useInterviewStore = create<InterviewState>((set, get) => ({
   totalQuestions: 0,
   timeRemaining: 0,
   inProgress: false,
+  interviewComplete: false, // Fixed: Added to the initial state
   isSubmitted: false,
   usersInRoom: [],
   submittedUsers: new Set(),
@@ -169,14 +172,29 @@ export const useInterviewStore = create<InterviewState>((set, get) => ({
       isSubmitted: false,
       submittedUsers: new Set(),
       currentAnswer: '',
+      interviewComplete: false, // Fixed: Ensure interviewComplete is reset
     });
+  },
+
+  completeInterview: () => {
+    const { groupId, isHost } = get();
+    if (!groupId) return;
+
+    set({
+      inProgress: false,
+      interviewComplete: true // Fixed: Now it exists in the initial state
+    });
+
+    if (isHost) {
+      const socket = getSocket();
+      socket.emit('end-interview', { groupId });
+    }
   }
 }));
 
 // Set up socket listeners
 function _setupSocketListeners() {
   const socket = getSocket();
-
   if (!socket) return;
 
   if ((socket as any)._listenersSet) return; // Prevent multiple bindings
@@ -238,6 +256,7 @@ function _setupSocketListeners() {
   socket.on('interview-ended', (results) => {
     useInterviewStore.setState({
       inProgress: false,
+      interviewComplete: true
     });
 
     console.log('Interview ended, results:', results);

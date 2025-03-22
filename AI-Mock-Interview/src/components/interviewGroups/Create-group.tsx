@@ -160,13 +160,20 @@ const CreateInterviewGroup = () => {
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0">
-                <Calendar
-                  mode="single"
-                  selected={date}
-                  onSelect={setDate}
-                  initialFocus
-                  disabled={(date) => date < new Date()}
-                />
+              <Calendar
+  mode="single"
+  selected={date}
+  onSelect={setDate}
+  initialFocus
+  disabled={(date) => {
+    // Create a new date with time set to beginning of day
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    // Compare only the date portion, not the time
+    return date < today;
+  }}
+/>
               </PopoverContent>
             </Popover>
             {formErrors.date && (

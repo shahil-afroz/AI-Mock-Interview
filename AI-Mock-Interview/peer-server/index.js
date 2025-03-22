@@ -10,7 +10,7 @@ const PORT = process.env.PORT || 9000;
 const HOST = "0.0.0.0"; // Listen on all interfaces
 
 app.use(cors({
-  origin: 'http://localhost:3000', // Adjust for your client
+  origin: 'https://ai-mock-interview-ten-omega.vercel.app', // Adjust for your client
   methods: ['GET', 'POST', 'OPTIONS'],
   allowedHeaders: ['Content-Type'],
 }));
