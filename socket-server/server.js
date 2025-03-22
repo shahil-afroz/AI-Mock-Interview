@@ -30,33 +30,30 @@ io.on('connection', (socket) => {
   console.log('User connected:', socket.id);
 
   // Handle explicit room joining for scoreboards
-  // Modify only the relevant server.js function
-// This is the join-group event handler that needs fixing
+  socket.on('join-group', (groupId) => {
+    console.log(`Socket ${socket.id} joining group ${groupId} for score updates`);
+    socket.join(groupId);
 
-socket.on('join-group', (groupId) => {
-  console.log(`Socket ${socket.id} joining group ${groupId} for score updates`);
-  socket.join(groupId);
+    // Send current scores if available
+    const interview = activeInterviews.get(groupId);
+    if (interview) {
+      // Make sure scores exist and initialize if not
+      if (!interview.scores) {
+        interview.scores = {};
+        activeInterviews.set(groupId, interview);
+      }
 
-  // Send current scores if available
-  const interview = activeInterviews.get(groupId);
-  if (interview) {
-    // Make sure scores exist and initialize if not
-    if (!interview.scores) {
-      interview.scores = {};
-      activeInterviews.set(groupId, interview);
+      // Always send the complete scores object
+      socket.emit('score-update', interview.scores);
+      console.log(`Sent initial scores to new connection in group ${groupId}:`, interview.scores);
+    } else {
+      // Create an empty interview object with scores
+      const newInterview = { scores: {} };
+      activeInterviews.set(groupId, newInterview);
+      socket.emit('score-update', {});
+      console.log(`Created new interview for group ${groupId}`);
     }
-
-    // Always send the complete scores object
-    socket.emit('score-update', interview.scores);
-    console.log(`Sent initial scores to new connection in group ${groupId}:`, interview.scores);
-  } else {
-    // Create an empty interview object with scores
-    const newInterview = { scores: {} };
-    activeInterviews.set(groupId, newInterview);
-    socket.emit('score-update', {});
-    console.log(`Created new interview for group ${groupId}`);
-  }
-});
+  });
 
   // Join interview group room
   socket.on('join-interview', ({ groupId, userId, username }) => {
@@ -64,7 +61,7 @@ socket.on('join-group', (groupId) => {
 
     // Add user to the room
     socket.join(groupId);
-    userToRoom.set(socket.id, { groupId, userId });
+    userToRoom.set(socket.id, { groupId, userId, username }); // Store username as well
 
     // Initialize scores if not already done
     const interview = activeInterviews.get(groupId) || { scores: {} };
@@ -97,10 +94,20 @@ socket.on('join-group', (groupId) => {
     // Send currently active users in this room
     const roomSockets = io.sockets.adapter.rooms.get(groupId);
     if (roomSockets) {
-      const usersInRoom = Array.from(roomSockets).map(socketId => {
-        // We only have the socketIds here, but userDetails would need to be stored separately
-        return { socketId };
-      });
+      const usersInRoom = [];
+      // Collect all users in the room with their details
+      for (const socketId of roomSockets) {
+        const userDetails = userToRoom.get(socketId);
+        if (userDetails) {
+          usersInRoom.push({
+            userId: userDetails.userId,
+            username: userDetails.username,
+            socketId
+          });
+        } else {
+          usersInRoom.push({ socketId });
+        }
+      }
       socket.emit('room-users', usersInRoom);
     }
 
@@ -230,6 +237,12 @@ socket.on('join-group', (groupId) => {
     moveToNextQuestion(groupId);
   });
 
+  // Handle interview end from client
+  socket.on('end-interview', ({ groupId }) => {
+    console.log(`Host ended interview for group ${groupId}`);
+    endInterview(groupId);
+  });
+
   // Handle disconnection
   socket.on('disconnect', () => {
     const userRoom = userToRoom.get(socket.id);
@@ -253,6 +266,11 @@ function startQuestionTimer(groupId, timeLimit) {
   const interview = activeInterviews.get(groupId);
   if (!interview) return;
 
+  // Clear any existing timers to prevent duplicates
+  if (interview.timers.questionTimer) {
+    clearTimeout(interview.timers.questionTimer);
+  }
+
   interview.timers.questionTimer = setTimeout(() => {
     // Time's up for current question
     io.to(groupId).emit('time-up', {
@@ -260,6 +278,10 @@ function startQuestionTimer(groupId, timeLimit) {
     });
 
     // Give a short break before moving to next question
+    if (interview.timers.breakTimer) {
+      clearTimeout(interview.timers.breakTimer);
+    }
+
     interview.timers.breakTimer = setTimeout(() => {
       moveToNextQuestion(groupId);
     }, 3000); // 3-second break between questions
@@ -304,16 +326,24 @@ function endInterview(groupId) {
 
   interview.inProgress = false;
 
+  // Clear any active timers
+  if (interview.timers.questionTimer) {
+    clearTimeout(interview.timers.questionTimer);
+  }
+  if (interview.timers.breakTimer) {
+    clearTimeout(interview.timers.breakTimer);
+  }
+
   // Compile all answers and results
   const results = {
     questions: interview.questions,
-    answers: Array.from(interview.answers).map(([questionIndex, userAnswers]) => ({
+    answers: interview.answers ? Array.from(interview.answers).map(([questionIndex, userAnswers]) => ({
       questionIndex,
       answers: Array.from(userAnswers).map(([userId, answer]) => ({
         userId,
         answer
       }))
-    })),
+    })) : [],
     scores: interview.scores || {}
   };
 
@@ -343,13 +373,22 @@ function checkAllSubmitted(groupId, questionIndex) {
 
   // If all users have submitted, move to next question
   if (answeredUsers >= totalUsers) {
-    clearTimeout(interview.timers.questionTimer);
+    // Clear the question timer
+    if (interview.timers.questionTimer) {
+      clearTimeout(interview.timers.questionTimer);
+    }
 
-    // Give a short break before moving to next question
+    // Notify that all users have submitted
     io.to(groupId).emit('all-submitted', {
       questionIndex
     });
 
+    // Clear any existing break timer to prevent duplicates
+    if (interview.timers.breakTimer) {
+      clearTimeout(interview.timers.breakTimer);
+    }
+
+    // Set a break timer before moving to the next question
     interview.timers.breakTimer = setTimeout(() => {
       moveToNextQuestion(groupId);
     }, 3000); // 3-second break between questions
