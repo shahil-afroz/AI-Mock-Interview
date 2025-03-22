@@ -7,7 +7,7 @@ let socket: Socket | null = null;
 
 export const initializeSocket = () => {
   if (!socket) {
-    const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:3003';
+    const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL || 'https://ai-mock-interview-wpaa.onrender.com';
     socket = io(socketUrl, {
       withCredentials: true,
       autoConnect: true,
