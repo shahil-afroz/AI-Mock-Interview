@@ -1,6 +1,7 @@
 // app/interview-groups/[groupId]/page.tsx
 "use client";
 
+import Navbar from "@/app/dashboard/_components/navbar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -107,6 +108,7 @@ const ParticipantScoresChart = ({ participants }) => {
 
   return (
     <Card className="mb-8">
+      <Navbar/>
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
           <CardTitle>Participant Total Scores</CardTitle>

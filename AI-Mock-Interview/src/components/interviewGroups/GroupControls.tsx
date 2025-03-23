@@ -21,38 +21,33 @@ const GroupControls = ({ groupId, isActive, allParticipantsReady, interviewDate 
   const [cancellingGroup, setCancellingGroup] = useState(false);
   const [generatingQuestions, setGeneratingQuestions] = useState(false);
   const [isInterviewTime, setIsInterviewTime] = useState(false);
-
+  console.log(interviewDate);
   useEffect(() => {
-    // Check if current time is at or past interview time
     const checkInterviewTime = () => {
       const currentTime = new Date();
-      setIsInterviewTime(currentTime >= interviewDate);
+      const interviewTime = new Date(interviewDate);
+
+      console.log("Current time:", currentTime);
+      console.log("Interview time:", interviewTime);
+
+      if (isNaN(interviewTime.getTime())) {
+        console.error("Invalid interview date format");
+        return;
+      }
+
+      // Simple comparison of timestamps
+      setIsInterviewTime(currentTime.getTime() >= interviewTime.getTime());
+      console.log("Is interview time:", currentTime.getTime() >= interviewTime.getTime());
     };
 
-    // Run immediately and set up interval to check every minute
     checkInterviewTime();
-    const intervalId = setInterval(checkInterviewTime, 60000);
-
+    const intervalId = setInterval(checkInterviewTime, 60000); // Check every minute
     return () => clearInterval(intervalId);
-  }, [interviewDate]);
+  }, [interviewDate]); // Add interviewDate as a dependency
 
   const handleStartInterview = async () => {
     setStartingInterview(true);
     try {
-      const response = await fetch(`/api/interview-groups/${groupId}/start`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Failed to start interview");
-      }
-
-      toast.success("Interview started successfully");
       router.push(`/interview-groups/${groupId}/session`);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to start interview");
@@ -110,7 +105,7 @@ const GroupControls = ({ groupId, isActive, allParticipantsReady, interviewDate 
       setGeneratingQuestions(false);
     }
   };
-
+   console.log("time:",isInterviewTime);
   // Button should be enabled only when all participants are ready AND it's interview time
   const canStartInterview = allParticipantsReady && isInterviewTime;
 
@@ -137,7 +132,7 @@ const GroupControls = ({ groupId, isActive, allParticipantsReady, interviewDate 
 
             <Button
               onClick={handleGenerateQuestions}
-              disabled={generatingQuestions || !isActive}
+              disabled={generatingQuestions }
               className="w-full bg-blue-600 hover:bg-blue-700"
             >
               {generatingQuestions ? (

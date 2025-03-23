@@ -1,4 +1,3 @@
-
 # ExcelInterview.AI - AI-Powered Interview Preparation Platform
 
 ![ExcelInterview.AI Logo](https://github.com/user-attachments/assets/df964484-d50b-40e3-bcb5-b533a3c9d8b0)
@@ -7,18 +6,13 @@
 
 **ExcelInterview.AI** is an AI-powered interview preparation platform that helps job seekers, students, and career switchers practice and improve their interview skills. With **AI-driven mock interviews**, **expert-led one-on-one interviews**, and **detailed feedback analytics**, the platform ensures users gain confidence and perform better in real-world job interviews.
 
+🔹 **Ace your interviews like a pro!** Whether you're a fresh graduate, an experienced professional, or a career switcher, ExcelInterview.AI is your go-to platform for unlocking career success. 🚀💼
+
 ---
 
 | ![IMG-20250301-WA0001](https://github.com/user-attachments/assets/fce225f0-4f28-4ce9-91c0-4a15580819c9) | ![IMG-20250301-WA0002](https://github.com/user-attachments/assets/9eb90e66-0dd7-4a31-a12c-76024499d2da) | ![IMG-20250301-WA0006](https://github.com/user-attachments/assets/f78cfae9-f413-40ad-b8c1-61943d237097) |
 |------------------------------|------------------------------|------------------------------|
-
-| ![IMG-20250301-WA0004](https://github.com/user-attachments/assets/4428b89a-99ab-40fd-a54e-62445de43b96) | ![WhatsApp Image 2025-02-28 at 00 45 01_c1d6f911](https://github.com/user-attachments/assets/08cf0ad6-666d-4041-a5cb-fc7ce704a9b4) |
-|------------------------------|------------------------------|
-
-
-
-
-
+| ![IMG-20250301-WA0004](https://github.com/user-attachments/assets/4428b89a-99ab-40fd-a54e-62445de43b96) | ![WhatsApp Image 2025-02-28 at 00 45 01_c1d6f911](https://github.com/user-attachments/assets/08cf0ad6-666d-4041-a5cb-fc7ce704a9b4) | ![WhatsApp Image 2025-03-22 at 14 19 48_ed8d0922](https://github.com/user-attachments/assets/f542a898-19d8-45e9-9697-843bda378492)
 
 
 ## 📌 Features
@@ -40,11 +34,16 @@
 - Complete profile **manually or via resume upload**.
 - **Graphical analytics** to track progress.
 
-
 ### 🔹 Unlimited AI Interviews & Resume-Based Customization
 - **Re-attempt interviews** with new question sets.
 - AI learns from **resume submissions** to **personalize questions**.
 
+### 🔹 Gamified & Collaborative Interview System 🎯🔥
+- Compete with friends in **real-time AI mock interviews**.
+- Answer via **speech-to-text** & track **rating growth curves**.
+- **Live leaderboard** ranks participants based on average ratings.
+- **Graphical analytics** provide performance insights.
+- Transform interview prep into an **engaging, competitive experience**! 🚀
 
 ---
 
@@ -58,15 +57,16 @@
 | **Authentication:** Clerk | Secure login for users & interviewers |
 | **File Processing:** PDF Parser | Extract skills from resumes |
 | **Speech Processing:** AssemblyAI | Analyze spoken responses |
+| **Real-time Features:** Socket.io | Interactive and competitive interview prep |
 
 ---
 
 ## 🌍 Societal Impact
 
--  **Bridges the Skill Gap** by offering affordable, AI-driven interview coaching.
--  **Empowers Freelancers** by enabling experts to earn from one-on-one interviews.
--  **Democratizes Interview Prep** by making structured coaching accessible to all.
--  **Supports Job Seekers in a Recession** by improving employability in a tough market.
+- **Bridges the Skill Gap** by offering affordable, AI-driven interview coaching.
+- **Empowers Freelancers** by enabling experts to earn from one-on-one interviews.
+- **Democratizes Interview Prep** by making structured coaching accessible to all.
+- **Supports Job Seekers in a Recession** by improving employability in a tough market.
 
 ---
 
@@ -129,14 +129,12 @@ GEMINI_AI_API_KEY=your_gemini_api_key
 
 ## 🔮 Future Prospects
 
--  **Premium AI interview sessions & subscriptions**.
--  **Integration with LinkedIn, GitHub, and job portals**.
--  **AI-powered resume enhancement suggestions**.
--  **Mobile app development** for wider accessibility.
--  **Customized AI models for industry-specific interviews**.
-
+- **Premium AI interview sessions & subscriptions**.
+- **Integration with LinkedIn, GitHub, and job portals**.
+- **AI-powered resume enhancement suggestions**.
+- **Mobile app development** for wider accessibility.
+- **Customized AI models for industry-specific interviews**.
 
 ---
 
 **🚀 Ready to Excel in Interviews? Start Practicing Today!**
-
