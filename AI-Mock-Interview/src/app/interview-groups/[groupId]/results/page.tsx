@@ -107,8 +107,10 @@ const ParticipantScoresChart = ({ participants }) => {
   };
 
   return (
+    <div>
+       <Navbar/>
     <Card className="mb-8">
-      <Navbar/>
+
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
           <CardTitle>Participant Total Scores</CardTitle>
@@ -170,6 +172,7 @@ const ParticipantScoresChart = ({ participants }) => {
         </div>
       </CardContent>
     </Card>
+    </div>
   );
 };
 
