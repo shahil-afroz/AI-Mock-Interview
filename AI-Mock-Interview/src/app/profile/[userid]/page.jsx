@@ -1,6 +1,6 @@
 'use client'
 import RatingsChart from '@/components/chart';
-import { Calendar, Edit, FileText, Mail, MessageSquare, Share2, Star, ThumbsUp, User } from 'lucide-react';
+import { Calendar, Edit, FileText, Mail, MessageSquare, Share2, Star, ThumbsUp, User, Briefcase } from 'lucide-react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -194,51 +194,78 @@ export default function ProfilePage() {
                         </div>
                     </div>
 
-                    {/* Skills Section */}
+                    {/* ADDED: Experience Section */}
                     <div className="md:col-span-2 bg-[#2c3e50] rounded-2xl p-6 shadow-2xl border border-[#3a4b5c]">
-                        <h3 className="text-xl font-semibold text-cyan-400 mb-6">Skills Breakdown</h3>
-
-                        <div className="space-y-6">
-                            <div>
-                                <h4 className="text-lg font-medium mb-3">Programming Languages</h4>
-                                <div className="flex flex-wrap gap-2">
-                                    {data.languages?.map((lang, index) => (
-                                        <span
-                                            key={index}
-                                            className={`${getColorForSkill(index, 'language')} text-white px-3 py-1 rounded-full text-sm`}
-                                        >
-                                            {lang}
-                                        </span>
-                                    ))}
-                                </div>
+                        <h3 className="text-xl font-semibold text-cyan-400 mb-6">Experience</h3>
+                        
+                        {experiences.length > 0 ? (
+                            <div className="space-y-6">
+                                {experiences.map((exp, index) => (
+                                    <div key={exp.id || index} className="bg-[#3a4b5c] rounded-lg p-5 border border-[#4a5b6c]">
+                                        <div className="flex items-start">
+                                            <Briefcase className="w-6 h-6 text-cyan-400 mt-1 mr-3 flex-shrink-0" />
+                                            <div>
+                                                <h4 className="text-lg font-medium text-white">{exp.CompanyName || "Company"}</h4>
+                                                <p className="text-cyan-300 mt-1">{exp.Role || "Role"}</p>
+                                                <p className="text-gray-400 text-sm mt-1">{exp.Duration || "Duration not specified"}</p>
+                                                <p className="text-gray-300 mt-3">{exp.Description || "No description provided."}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
                             </div>
-
-                            <div>
-                                <h4 className="text-lg font-medium mb-3">Frameworks</h4>
-                                <div className="flex flex-wrap gap-2">
-                                    {data.frameworks?.map((framework, index) => (
-                                        <span
-                                            key={index}
-                                            className={`${getColorForSkill(index, 'framework')} text-white px-3 py-1 rounded-full text-sm`}
-                                        >
-                                            {framework}
-                                        </span>
-                                    ))}
-                                </div>
+                        ) : (
+                            <div className="bg-[#3a4b5c] rounded-lg p-5 text-center">
+                                <p className="text-gray-400">No experience details available</p>
                             </div>
+                        )}
+                    </div>
+                </div>
 
-                            <div>
-                                <h4 className="text-lg font-medium mb-3">Tools</h4>
-                                <div className="flex flex-wrap gap-2">
-                                    {data.tools?.map((tool, index) => (
-                                        <span
-                                            key={index}
-                                            className={`${getColorForSkill(index, 'tool')} text-white px-3 py-1 rounded-full text-sm`}
-                                        >
-                                            {tool}
-                                        </span>
-                                    ))}
-                                </div>
+                {/* Skills Section - Moved below Experience */}
+                <div className="mt-8 bg-[#2c3e50] rounded-2xl p-6 shadow-2xl border border-[#3a4b5c]">
+                    <h3 className="text-xl font-semibold text-cyan-400 mb-6">Skills Breakdown</h3>
+
+                    <div className="space-y-6">
+                        <div>
+                            <h4 className="text-lg font-medium mb-3">Programming Languages</h4>
+                            <div className="flex flex-wrap gap-2">
+                                {data.languages?.map((lang, index) => (
+                                    <span
+                                        key={index}
+                                        className={`${getColorForSkill(index, 'language')} text-white px-3 py-1 rounded-full text-sm`}
+                                    >
+                                        {lang}
+                                    </span>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div>
+                            <h4 className="text-lg font-medium mb-3">Frameworks</h4>
+                            <div className="flex flex-wrap gap-2">
+                                {data.frameworks?.map((framework, index) => (
+                                    <span
+                                        key={index}
+                                        className={`${getColorForSkill(index, 'framework')} text-white px-3 py-1 rounded-full text-sm`}
+                                    >
+                                        {framework}
+                                    </span>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div>
+                            <h4 className="text-lg font-medium mb-3">Tools</h4>
+                            <div className="flex flex-wrap gap-2">
+                                {data.tools?.map((tool, index) => (
+                                    <span
+                                        key={index}
+                                        className={`${getColorForSkill(index, 'tool')} text-white px-3 py-1 rounded-full text-sm`}
+                                    >
+                                        {tool}
+                                    </span>
+                                ))}
                             </div>
                         </div>
                     </div>

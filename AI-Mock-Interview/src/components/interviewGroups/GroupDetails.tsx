@@ -238,6 +238,7 @@ const GroupDetails = ({ groupId }: GroupDetailsProps) => {
               isActive={group.isActive}
               interviewDate={interviewDate}
               allParticipantsReady={allParticipantsReady}
+
             />
           </TabsContent>
         )}

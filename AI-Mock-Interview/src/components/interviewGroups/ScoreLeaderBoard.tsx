@@ -35,7 +35,7 @@ const InterviewStandingsGraph = ({ groupId }: { groupId: string }) => {
     console.log("Component mounted with groupId:", groupId);
 
     // Create socket connection
-    const socket: Socket = io('http://localhost:3003', {
+    const socket: Socket = io('https://ai-mock-interview-wpaa.onrender.com', {
       reconnectionAttempts: 5,
       reconnectionDelay: 1000,
       timeout: 20000,

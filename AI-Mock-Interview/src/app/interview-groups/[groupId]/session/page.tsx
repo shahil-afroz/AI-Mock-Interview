@@ -5,15 +5,23 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
-import { Separator } from "@/components/ui/separator";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { useInterviewStore } from "@/lib/socket";
 import { useAuth } from "@clerk/nextjs";
-import { CheckCircle, Clock, Loader2, Mic, MicOff, Volume2 } from "lucide-react";
+import { CheckCircle, Clock, Code, FileText, Loader2, Mic, MicOff, Volume2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { use, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import InterviewStandingsGraph from "../../../../components/interviewGroups/ScoreLeaderBoard";
+
+// Add code editor import
+import dynamic from "next/dynamic";
+
+// Dynamically import the code editor to avoid SSR issues
+const CodeEditor = dynamic(
+  () => import("@monaco-editor/react").then((mod) => mod.default),
+  { ssr: false }
+);
 
 interface SessionPageProps {
   params: {
@@ -31,6 +39,8 @@ type Question = {
   skills?: string[];
   commonMistakes?: string[];
   maxScore?: number;
+  type?: "text" | "code"; // Add question type
+  language?: string; // Add programming language for code questions
 };
 
 type Participant = {
@@ -56,6 +66,9 @@ export default function InterviewSessionPage({ params }: SessionPageProps) {
   const [sessionComplete, setSessionComplete] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [username, setUsername] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<"text" | "code">("text");
+  const [codeContent, setCodeContent] = useState<string>("");
+  const [codeLanguage, setCodeLanguage] = useState<string>("javascript");
 
   // Recording states
   const [isRecording, setIsRecording] = useState(false);
@@ -86,7 +99,8 @@ export default function InterviewSessionPage({ params }: SessionPageProps) {
     isSubmitted,
     currentAnswer,
     usersInRoom,
-    submittedUsers
+    submittedUsers,
+    interviewComplete
   } = useInterviewStore();
   const unwrappedParams = use(params);
   const { groupId } = unwrappedParams;
@@ -109,8 +123,9 @@ export default function InterviewSessionPage({ params }: SessionPageProps) {
           throw new Error("Failed to fetch participants");
         }
         const participantsData = await participantsResponse.json();
+        console.log("Fetched participants:", participantsData);
         setParticipants(participantsData.participants);
-
+        console.log("participants", participants);
         // Determine if current user is admin/host
         const currentUser = participantsData.participants.find(
           (p: Participant) => p.userId === userId
@@ -144,6 +159,57 @@ export default function InterviewSessionPage({ params }: SessionPageProps) {
       cleanupAudio();
     };
   }, [groupId, userId, joinInterview, username]);
+
+  // Listen for interview complete event
+  useEffect(() => {
+    if (interviewComplete) {
+      setSessionComplete(true);
+    }
+  }, [interviewComplete]);
+
+  // Effect to detect code questions and set appropriate tab and language
+  useEffect(() => {
+    if (questions.length > 0 && currentQuestionIndex >= 0) {
+      const currentQuestion = questions[currentQuestionIndex];
+
+      // Check if question is a code question based on content or type
+      const isCodeQuestion =
+        currentQuestion.type === "code" ||
+        /write a (function|program|code|algorithm|class)/i.test(currentQuestion.text) ||
+        /implement|programming|coding challenge/i.test(currentQuestion.text);
+
+      // Set active tab based on question type
+      setActiveTab(isCodeQuestion ? "code" : "text");
+
+      // Set language based on question content or default to JavaScript
+      if (isCodeQuestion) {
+        const detectedLanguage = detectLanguageFromQuestion(currentQuestion.text);
+        setCodeLanguage(detectedLanguage || currentQuestion.language || "javascript");
+      }
+    }
+  }, [questions, currentQuestionIndex]);
+
+  // Function to detect programming language from question text
+  const detectLanguageFromQuestion = (questionText: string): string | null => {
+    const languagePatterns = [
+      { pattern: /python|pandas|numpy|def\s+\w+\s*\(/i, language: "python" },
+      { pattern: /javascript|js|function\s+\w+\s*\(/i, language: "javascript" },
+      { pattern: /typescript|ts|interface/i, language: "typescript" },
+      { pattern: /java|public\s+class/i, language: "java" },
+      { pattern: /c\+\+|cpp|#include/i, language: "cpp" },
+      { pattern: /sql|select|from|where/i, language: "sql" },
+      { pattern: /html|css|<div>/i, language: "html" },
+      { pattern: /react|jsx|tsx|component/i, language: "tsx" },
+    ];
+
+    for (const { pattern, language } of languagePatterns) {
+      if (pattern.test(questionText)) {
+        return language;
+      }
+    }
+
+    return null;
+  };
 
   // Clean up audio resources
   const cleanupAudio = () => {
@@ -403,34 +469,31 @@ export default function InterviewSessionPage({ params }: SessionPageProps) {
       }
 
       // Update the answer text with the transcription
-      // Changed to use data.transcript instead of data.text to match your backend
-   // In the transcribeAudio function:
+      if (data.transcript && data.transcript.trim()) {
+        // Log before updating to see the data
+        console.log('Received transcript:', data.transcript);
 
-if (data.transcript && data.transcript.trim()) {
-  // Log before updating to see the data
-  console.log('Received transcript:', data.transcript);
+        // Use a local variable first for debugging
+        const newText = data.transcript.trim();
+        const currentText = currentAnswer || ''; // Use the component state directly
+        console.log('Current answer before update:', currentText);
 
-  // Use a local variable first for debugging
-  const newText = data.transcript.trim();
-  const currentText = currentAnswer || ''; // Use the component state directly
-  console.log('Current answer before update:', currentText);
+        // Create the new answer text
+        const updatedText = currentText.trim()
+          ? `${currentText.trim()}\n\n${newText}`
+          : newText;
+        console.log('Updated answer will be:', updatedText);
 
-  // Create the new answer text
-  const updatedText = currentText.trim()
-    ? `${currentText.trim()}\n\n${newText}`
-    : newText;
-  console.log('Updated answer will be:', updatedText);
+        // Update the state
+        setCurrentAnswer(updatedText);
 
-  // Update the state
-  setCurrentAnswer(updatedText);
+        // Also log after the update attempt
+        console.log('State update attempted, current answer:', currentAnswer);
 
-  // Also log after the update attempt
-  console.log('State update attempted, current answer:', currentAnswer);
-
-  toast.success("Successfully transcribed your answer!");
-} else {
-  toast.warning("No speech detected in the recording. Please try again and speak clearly.");
-}
+        toast.success("Successfully transcribed your answer!");
+      } else {
+        toast.warning("No speech detected in the recording. Please try again and speak clearly.");
+      }
     } catch (err) {
       console.error("Transcription error:", err);
       toast.error("Failed to transcribe audio. Please try again or type your answer.");
@@ -451,121 +514,83 @@ if (data.transcript && data.transcript.trim()) {
       difficulty: q.difficulty || 1,
       skills: q.skills || [],
       commonMistakes: q.commonMistakes,
-      maxScore: q.maxScore || 10
+      maxScore: q.maxScore || 10,
+      type: q.type || "text",
+      language: q.language || "javascript"
     }));
 
     startInterview(formattedQuestions);
   };
 
   // Handle submitting answer
-  // Handle submitting answer
-// const handleSubmitAnswer = async () => {
-//   if (submitting || isSubmitted) return;
+  const handleSubmitAnswer = async () => {
+    if (submitting || isSubmitted) return;
 
-//   // Stop recording if it's still going
-//   if (isRecording) {
-//     stopRecording();
-//   }
-
-//   setSubmitting(true);
-//   try {
-//     // Submit to WebSocket
-//     submitAnswer(currentAnswer || ''); // Ensure we're not sending undefined/null
-
-//     // Get the current question ID
-//     const currentQuestionId = questions[currentQuestionIndex].id;
-//     console.log("current ans", currentAnswer);
-//     // Also save to database via API for persistence
-//     const response = await fetch(`/api/interview-groups/${groupId}/${currentQuestionId}`, {
-//       method: "POST",
-//       headers: {
-//         "Content-Type": "application/json",
-//         Authorization: `Bearer ${await getToken()}`,
-//       },
-//       body: JSON.stringify({
-//         userAnswer: currentAnswer || '',
-//         groupId,
-//         questionId: currentQuestionId,
-//       }),
-//     });
-
-//     if (!response.ok) {
-//       const data = await response.json();
-//       throw new Error(data.error || "Failed to submit answer");
-//     }
-
-//     // Get the analysis result
-//     const analysisResult = await response.json();
-//     console.log("Answer analysis:", analysisResult);
-
-//     // WebSocket will handle moving to the next question
-//     toast.success("Answer submitted and analyzed successfully!");
-//   } catch (err) {
-//     toast.error(err instanceof Error ? err.message : "Failed to submit answer");
-//   } finally {
-//     setSubmitting(false);
-//   }
-// };
-
-const handleSubmitAnswer = async () => {
-  if (submitting || isSubmitted) return;
-
-  // Stop recording if it's still going
-  if (isRecording) {
-    stopRecording();
-  }
-
-  setSubmitting(true);
-  try {
-    // Submit to WebSocket - add a placeholder score to trigger update
-    submitAnswer(currentAnswer || ''); // This will now trigger score update on the server
-
-    // Get the current question ID
-    const currentQuestionId = questions[currentQuestionIndex].id;
-
-    // Also save to database via API for persistence
-    const response = await fetch(`/api/interview-groups/${groupId}/${currentQuestionId}`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${await getToken()}`,
-      },
-      body: JSON.stringify({
-        userAnswer: currentAnswer || '',
-        groupId,
-        questionId: currentQuestionId,
-      }),
-    });
-
-    if (!response.ok) {
-      const data = await response.json();
-      throw new Error(data.error || "Failed to submit answer");
+    // Stop recording if it's still going
+    if (isRecording) {
+      stopRecording();
     }
 
-    // Get the analysis result
-    const analysisResult = await response.json();
-    console.log("Answer analysis:", analysisResult);
-     if(!userId || !username) {
-       console.log("No userId or username found, not updating score");
-       return;
-     }
-    // If there's a score from analysis, update it in the socket
-    if (analysisResult.userScore.
-      totalScore
-       !== undefined) {
-      // Send dedicated score update event
-      useInterviewStore.getState().updateScore(userId, analysisResult.analysis.
-        totalScore
-        , username);
-    }
+    // Prepare the final answer content based on active tab
+    const finalAnswer = activeTab === "code"
+      ? `\`\`\`${codeLanguage}\n${codeContent}\n\`\`\`\n\n${currentAnswer || ''}`
+      : currentAnswer || '';
 
-    toast.success("Answer submitted and analyzed successfully!");
-  } catch (err) {
-    toast.error(err instanceof Error ? err.message : "Failed to submit answer");
-  } finally {
-    setSubmitting(false);
-  }
-};
+    setSubmitting(true);
+    try {
+      // Submit to WebSocket - add a placeholder score to trigger update
+      submitAnswer(finalAnswer);
+
+      // Get the current question ID
+      const currentQuestionId = questions[currentQuestionIndex].id;
+
+      // Also save to database via API for persistence
+      const response = await fetch(`/api/interview-groups/${groupId}/${currentQuestionId}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${await getToken()}`,
+        },
+        body: JSON.stringify({
+          userAnswer: finalAnswer,
+          groupId,
+          questionId: currentQuestionId,
+          answerType: activeTab,
+          codeLanguage: activeTab === "code" ? codeLanguage : undefined
+        }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || "Failed to submit answer");
+      }
+
+      // Get the analysis result
+      const analysisResult = await response.json();
+      console.log("Answer analysis:", analysisResult);
+
+      if (!userId || !username) {
+        console.log("No userId or username found, not updating score");
+        return;
+      }
+
+      // If there's a score from analysis, update it in the socket
+      if (analysisResult.userScore && analysisResult.userScore.totalScore !== undefined) {
+        // Send dedicated score update event
+        useInterviewStore.getState().updateScore(
+          userId,
+          analysisResult.userScore.totalScore,
+          username
+        );
+      }
+
+      toast.success("Answer submitted and analyzed successfully!");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to submit answer");
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -582,7 +607,34 @@ const handleSubmitAnswer = async () => {
       stopRecording();
     }
 
+    // Reset code content for the next question
+    setCodeContent("");
+
+    // Check if this is the last question, and if so, end the interview
+    if (currentQuestionIndex >= questions.length - 1) {
+      // Mark the session as complete
+      setSessionComplete(true);
+      // Also trigger in the socket store
+      useInterviewStore.getState().completeInterview();
+      return;
+    }
+
     nextQuestion();
+  };
+
+  // Handle ending the interview
+  const handleEndInterview = () => {
+    if (!isAdmin) return;
+
+    // Mark the session as complete
+    setSessionComplete(true);
+    // Also trigger in the socket store
+    useInterviewStore.getState().completeInterview();
+  };
+
+  // Handle code editor changes
+  const handleCodeChange = (value: string | undefined) => {
+    setCodeContent(value || "");
   };
 
   if (loading) {
@@ -642,7 +694,7 @@ const handleSubmitAnswer = async () => {
               You've completed all questions in this interview session!
             </p>
             <p className="text-gray-600 mb-8">
-              Your answers have been submitted and will be evaluated.
+              Your answers have been submitted and analyzed.
             </p>
 
             <div className="bg-gray-50 p-4 rounded-lg mb-6">
@@ -738,26 +790,28 @@ const handleSubmitAnswer = async () => {
     );
   }
 
-  if (!inProgress && !isAdmin) {
-    return (
-      <div className="container mx-auto py-12 px-4">
-        <Card className="max-w-3xl mx-auto">
-          <CardHeader>
-            <CardTitle className="text-center text-2xl">Waiting for Host</CardTitle>
-          </CardHeader>
-          <CardContent className="text-center">
-            <Loader2 className="h-16 w-16 animate-spin text-violet-600 mx-auto mb-4" />
-            <p className="text-lg text-gray-700 mb-4">
-              The interview session hasn't started yet.
-            </p>
-            <p className="text-gray-600 mb-8">
-              Waiting for the host to begin the session...
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
+  // Update the conditional rendering for non-admin users
+if (!inProgress && !isAdmin) {
+  return (
+    <div className="container mx-auto py-12 px-4">
+      <Card className="max-w-3xl mx-auto">
+        <CardHeader>
+          <CardTitle className="text-center text-2xl">Waiting for Host</CardTitle>
+        </CardHeader>
+        <CardContent className="text-center">
+          <Loader2 className="h-16 w-16 animate-spin text-violet-600 mx-auto mb-4" />
+          <p className="text-lg text-gray-700 mb-4">
+            The interview session hasn't started yet.
+          </p>
+          <p className="text-gray-600 mb-8">
+            Waiting for the host to begin the session...
+          </p>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
 
   const currentQuestion = questions[currentQuestionIndex] || {
     text: "Loading question...",
@@ -802,79 +856,134 @@ const handleSubmitAnswer = async () => {
                         </Button>
                       ) : (
                         <Button
-                          onClick={startRecording}
-                          variant="secondary"
-                          className="flex items-center gap-1 px-3 py-1 h-8"
-                          disabled={isTranscribing}
-                        >
-                          <Mic className="h-4 w-4" /> Record Answer
-                        </Button>
-                      )}
-                    </div>
-                  )}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="flex-grow">
-                <div className="prose max-w-none">
-                  <p className="text-lg">{currentQuestion.text}</p>
-                </div>
-
-                <Separator className="my-6" />
-
-                {isRecording && (
-                  <div className="mb-4 bg-gray-50 p-4 rounded-lg">
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-2">
-                        <div className="h-3 w-3 bg-red-500 rounded-full animate-pulse"></div>
-                        <span className="text-sm font-medium">Recording in progress...</span>
-                      </div>
-                      <span className="text-sm text-gray-500">{formatRecordingTime(recordingTime)}</span>
-                    </div>
-
-                    <div className="mt-2 flex items-center gap-2">
-                      <Volume2 className="h-4 w-4 text-gray-500" />
-                      <div className="w-full bg-gray-200 rounded-full h-2">
-                        <div
-                          className="bg-violet-600 h-2 rounded-full"
-                          style={{ width: `${Math.min(100, audioLevel * 3)}%` }}
-                        ></div>
-                      </div>
-                    </div>
-
-                    <p className="text-sm text-gray-500 mt-2">
-                      {audioLevel < 10 ? (
-                        "Speak clearly into your microphone"
-                      ) : (
-                        "Audio detected"
-                      )}
-                    </p>
-                  </div>
-                )}
-
-                <div className="space-y-2">
-                  <div className="flex justify-between items-center">
-                    <Label htmlFor="answer" className="text-sm font-medium">
-                      Your Answer
-                    </Label>
-                    {isTranscribing && (
-                      <div className="flex items-center text-sm text-amber-600">
-                        <Loader2 className="h-3 w-3 animate-spin mr-1" />
-                        Transcribing your answer...
-                      </div>
+                        onClick={startRecording}
+                        variant="secondary"
+                        className="flex items-center gap-1 px-3 py-1 h-8"
+                        disabled={isTranscribing || isRecording}
+                      >
+                        <Mic className="h-4 w-4" /> Record
+                      </Button>
                     )}
                   </div>
-                  <Textarea
-  id="answer"
-  value={currentAnswer } // Use nullish coalescing to ensure string value
-  onChange={(e) => setCurrentAnswer(e.target.value)}
-  placeholder="Type your answer here or use the Record Answer button to speak your response..."
-  className="min-h-[200px] resize-none"
-  disabled={isSubmitted || isTranscribing}
-/>
-                </div>
-              </CardContent>
-              <CardFooter className="flex justify-between">
-                {isAdmin && (
+                )}
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="flex-grow pb-4">
+              <div className="p-4 bg-gray-50 rounded-lg mb-4">
+                <p className="whitespace-pre-wrap">{currentQuestion.text}</p>
+              </div>
+
+              <div className="mt-4">
+                {isSubmitted ? (
+                  <div className="p-4 bg-green-50 rounded-lg border border-green-200">
+                    <div className="flex items-center text-green-600 mb-2">
+                      <CheckCircle className="h-5 w-5 mr-2" />
+                      <span className="font-medium">Answer submitted</span>
+                    </div>
+                    <p className="text-gray-600">
+                      Waiting for the interviewer to move to the next question.
+                    </p>
+                  </div>
+                ) : (
+                  <div>
+                    <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as "text" | "code")}>
+                      <TabsList className="mb-4">
+                        <TabsTrigger value="text" className="flex items-center gap-2">
+                          <FileText className="h-4 w-4" /> Text
+                        </TabsTrigger>
+                        <TabsTrigger value="code" className="flex items-center gap-2">
+                          <Code className="h-4 w-4" /> Code
+                        </TabsTrigger>
+                      </TabsList>
+                      <TabsContent value="text" className="mt-0">
+                        <div className="mb-2 flex items-center gap-2">
+                          <Label htmlFor="answer">Your Answer</Label>
+                          {isTranscribing && (
+                            <div className="flex items-center text-amber-600 text-sm">
+                              <Loader2 className="h-3 w-3 animate-spin mr-1" />
+                              Transcribing...
+                            </div>
+                          )}
+                          {audioLevel > 0 && isRecording && (
+                            <div className="flex items-center gap-1">
+                              <Volume2 className="h-3 w-3 text-green-600" />
+                              <div className="w-16 bg-gray-200 rounded-full h-1.5">
+                                <div
+                                  className="bg-green-600 h-1.5 rounded-full"
+                                  style={{ width: `${Math.min(100, audioLevel)}%` }}
+                                ></div>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                        <Textarea
+                          id="answer"
+                          placeholder="Type your answer here..."
+                          className="min-h-[200px]"
+                          value={currentAnswer || ""}
+                          onChange={(e) => setCurrentAnswer(e.target.value)}
+                          disabled={isSubmitted || isTranscribing}
+                        />
+                      </TabsContent>
+                      <TabsContent value="code" className="mt-0">
+                        <div className="mb-2">
+                          <Label>Programming Language</Label>
+                          <select
+                            value={codeLanguage}
+                            onChange={(e) => setCodeLanguage(e.target.value)}
+                            className="ml-2 border rounded p-1 text-sm"
+                            disabled={isSubmitted}
+                          >
+                            <option value="javascript">JavaScript</option>
+                            <option value="typescript">TypeScript</option>
+                            <option value="python">Python</option>
+                            <option value="java">Java</option>
+                            <option value="csharp">C#</option>
+                            <option value="cpp">C++</option>
+                            <option value="php">PHP</option>
+                            <option value="ruby">Ruby</option>
+                            <option value="go">Go</option>
+                            <option value="sql">SQL</option>
+                            <option value="html">HTML</option>
+                            <option value="css">CSS</option>
+                          </select>
+                        </div>
+                        <div className="h-[300px] border rounded">
+                          <CodeEditor
+                            height="300px"
+                            language={codeLanguage}
+                            value={codeContent}
+                            onChange={handleCodeChange}
+                            options={{
+                              minimap: { enabled: false },
+                              scrollBeyondLastLine: false,
+                              fontSize: 14,
+                              readOnly: isSubmitted
+                            }}
+                          />
+                        </div>
+                        {activeTab === "code" && (
+                          <div className="mt-4">
+                            <Label htmlFor="notes">Additional Notes (Optional)</Label>
+                            <Textarea
+                              id="notes"
+                              placeholder="Add any explanations or notes about your code..."
+                              className="min-h-[100px] mt-1"
+                              value={currentAnswer || ""}
+                              onChange={(e) => setCurrentAnswer(e.target.value)}
+                              disabled={isSubmitted}
+                            />
+                          </div>
+                        )}
+                      </TabsContent>
+                    </Tabs>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+            <CardFooter className="flex justify-between">
+
+            {isAdmin && (
                   <Button
                     variant="outline"
                     onClick={handleNextQuestion}
@@ -883,6 +992,7 @@ const handleSubmitAnswer = async () => {
                     Skip/Next Question
                   </Button>
                 )}
+
                 <div className="ml-auto">
                   <Button
                     onClick={handleSubmitAnswer}
@@ -902,11 +1012,10 @@ const handleSubmitAnswer = async () => {
                   </Button>
                 </div>
               </CardFooter>
-            </Card>
-          </div>
-          <InterviewStandingsGraph groupId={groupId} />
+          </Card>
+        </div>
 
-          <div className="hidden lg:block">
+        <div className="hidden lg:block">
             <Card>
               <CardHeader>
                 <CardTitle>Participants</CardTitle>
@@ -946,8 +1055,8 @@ const handleSubmitAnswer = async () => {
               </CardContent>
             </Card>
           </div>
-        </div>
       </div>
     </div>
-  );
+  </div>
+);
 }
