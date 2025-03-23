@@ -28,6 +28,7 @@ function RecordAnswerSection({ mockInterviewQuestion, activeQuestionIndex, inter
   const mediaStreamRef = useRef(null);
   const videoRecorderRef = useRef(null);
   
+  
   // Video recording settings
   const videoConstraints = {
     width: 640,
@@ -156,11 +157,7 @@ function RecordAnswerSection({ mockInterviewQuestion, activeQuestionIndex, inter
         mediaRecorderRef.current.stop();
       }
 
-      // Stop and clean up all media tracks
-      if (mediaStreamRef.current) {
-        mediaStreamRef.current.getTracks().forEach(track => track.stop());
-      }
-      
+     
       toast.info("Recording stopped");
     }
   };
@@ -265,7 +262,7 @@ function RecordAnswerSection({ mockInterviewQuestion, activeQuestionIndex, inter
         "facialExpressions": "detailed analysis here",
         "speakingPace": "detailed analysis here",
         "overallPresentation": "detailed analysis here",
-        "improvementSuggestions": "detailed analysis here"
+        "improvementSuggestions": "specific actions for improvement strictly in a single string"
       }`;
 
       // Use the direct model method to analyze video
@@ -274,7 +271,7 @@ function RecordAnswerSection({ mockInterviewQuestion, activeQuestionIndex, inter
       // Try to parse JSON from the response
       let jsonData;
       try {
-        // Extract JSON using regex or fallback
+       
         const jsonMatch = analysisResponse.match(/```(?:json)?([\s\S]*?)```/);
         const cleanedResponse = jsonMatch ? jsonMatch[1].trim() : analysisResponse.trim();
   

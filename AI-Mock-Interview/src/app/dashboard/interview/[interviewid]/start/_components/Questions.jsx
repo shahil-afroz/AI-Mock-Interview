@@ -1,12 +1,48 @@
 import { LightbulbIcon, LucideVolume2, LucidePauseCircle, LucidePlayCircle, LucideStopCircle } from 'lucide-react';
 import React, { useState } from 'react';
+// import { PollyClient, ListLexiconsCommand,SynthesizeSpeechCommand } from "@aws-sdk/client-polly";
+
 
 function InterviewQuestions({ mockInterviewQuestion, activeQuestionIndex,setActiveQuestionIndex }) {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [speechInstance, setSpeechInstance] = useState(null);
+  const[audioUrl,setAudioUrl]=useState()
 
+  // const texttoSpeech=async(text)=>{
+  //   const pollyClient=new PollyClient({
+  //     region:'ap-south-1',
+  //   credentials:{
+  //     accessKeyId:process.env.NEXT_PUBLIC_AWS_ACCESS_KEY,
+  //     secretAccessKey:process.env.NEXT_PUBLIC_AWS_SECRET_KEY,
+  //   }
 
+  //   })
+    
+  //   const command=new SynthesizeSpeechCommand(
+  //     {
+  //       Text:text,
+  //       OutputFormat:'mp3',
+  //     VoiceId:'Joanna'
+  //     }
+  //   )
+  //   try{
+  //     const {AudioStream}=await pollyClient.send(command);
+  //     const audioarrayBuffer=await AudioStream.transformToByteArray();
+  //     const audioBlob=new Blob([audioarrayBuffer,{type:'audio/mp3'}])
+  //     const audioUrl=URL.createObjectURL(audioBlob);
+  //     console.log(audioUrl);
+  //     setAudioUrl(audioUrl);
+  //     // return audioUrl;
+
+  
+  //   }catch(error){
+  //     console.log(error);
+  
+  //   }
+
+  // }
+  
   const texttoSpeech = (text) => {
     if ('speechSynthesis' in window) {
       if (speechInstance) {
@@ -87,6 +123,12 @@ function InterviewQuestions({ mockInterviewQuestion, activeQuestionIndex,setActi
               <LucidePauseCircle size={24} />
             </button>
           )}
+          {/* <audio
+          src={audioUrl}
+          type="audio/mp3"
+          autoPlay>
+
+          </audio> */}
 
           {isPaused && (
             <button
