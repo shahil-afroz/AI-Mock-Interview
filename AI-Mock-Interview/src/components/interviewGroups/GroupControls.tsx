@@ -132,7 +132,7 @@ const GroupControls = ({ groupId, isActive, allParticipantsReady, interviewDate 
 
             <Button
               onClick={handleGenerateQuestions}
-              disabled={generatingQuestions || !isActive}
+              disabled={generatingQuestions }
               className="w-full bg-blue-600 hover:bg-blue-700"
             >
               {generatingQuestions ? (
