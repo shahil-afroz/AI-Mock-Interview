@@ -108,7 +108,7 @@ const ParticipantScoresChart = ({ participants }) => {
 
   return (
     <div>
-       <Navbar/>
+
     <Card className="mb-8">
 
       <CardHeader className="pb-2">
@@ -254,6 +254,7 @@ export default function InterviewGroupDashboard() {
 
   return (
     <div className="container mx-auto py-8">
+         <Navbar/>
       <header className="mb-8">
         <h1 className="text-3xl font-bold">Interview Group: {groupData.group.name}</h1>
         <div className="mt-2 flex flex-wrap gap-2">
