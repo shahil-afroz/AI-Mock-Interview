@@ -1,9 +1,8 @@
 import { CategoryScale, Chart, Legend, LinearScale, LineElement, PointElement, Title, Tooltip } from 'chart.js';
 import { useEffect, useState } from 'react';
 import { Line } from 'react-chartjs-2';
-import { io, Socket } from 'socket.io-client';
 
-// Register the necessary components
+// Register Chart.js components
 Chart.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
 interface UserScore {
@@ -21,8 +20,9 @@ const InterviewStandingsGraph = ({ groupId }: { groupId: string }) => {
     const savedScores = localStorage.getItem(`scores_${groupId}`);
     return savedScores ? JSON.parse(savedScores) : {};
   });
-  const [socketStatus, setSocketStatus] = useState<string>("disconnected");
-  const [socketInstance, setSocketInstance] = useState<Socket | null>(null);
+
+  const [pollingStatus, setPollingStatus] = useState<string>("stopped");
+  const [pollingInterval, setPollingInterval] = useState<NodeJS.Timeout | null>(null);
 
   // Save scores to localStorage when they change
   useEffect(() => {
@@ -31,114 +31,82 @@ const InterviewStandingsGraph = ({ groupId }: { groupId: string }) => {
     }
   }, [scores, groupId]);
 
-  useEffect(() => {
-    console.log("Component mounted with groupId:", groupId);
+  // Fetch scores function
+  const fetchScores = async () => {
+    try {
+      setPollingStatus("fetching");
+      const response = await fetch(`/api/interview-groups/${groupId}/scores`);
 
-    // Create socket connection
-    const socket: Socket = io('https://ai-mock-interview-wpaa.onrender.com', {
-      reconnectionAttempts: 5,
-      reconnectionDelay: 1000,
-      timeout: 20000,
-      transports: ['websocket', 'polling'] // Try both transports
-    });
-
-    setSocketInstance(socket);
-
-    // Fetch initial scores from the server
-    const fetchInitialScores = async () => {
-      try {
-        const response = await fetch(`/api/interview-groups/${groupId}/scores`);
-        if (!response.ok) {
-          throw new Error(`Failed to fetch scores: ${response.status}`);
-        }
-        const initialScores = await response.json();
-        console.log("Initial scores fetched:", initialScores);
-
-        // Only update if we got valid scores and merge with existing
-        if (initialScores && Object.keys(initialScores).length > 0) {
-          setScores(prevScores => ({...prevScores, ...initialScores}));
-        }
-      } catch (error) {
-        console.error("Error fetching scores:", error);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch scores: ${response.status}`);
       }
-    };
 
-    // Socket connection status events
-    socket.on('connect', () => {
-      console.log('Socket connected with ID:', socket.id);
-      setSocketStatus("connected");
+      const updatedScores = await response.json();
+      console.log("Scores fetched:", updatedScores);
 
-      // Join the specific room for this group AFTER connection
-      socket.emit('join-group', groupId);
-      console.log('Emitted join-group for:', groupId);
+      // Only update if we got valid scores
+      if (updatedScores && Object.keys(updatedScores).length > 0) {
+        setScores(prevScores => {
+          const newScores = {...prevScores};
 
-      // Fetch initial scores after connection established
-      fetchInitialScores();
-    });
-
-    socket.on('disconnect', (reason) => {
-      console.log('Socket disconnected:', reason);
-      setSocketStatus("disconnected");
-    });
-
-    socket.on('connect_error', (error) => {
-      console.error('Socket connection error:', error.message);
-      setSocketStatus("error: " + error.message);
-    });
-
-    socket.io.on("reconnect_attempt", (attempt) => {
-      console.log(`Reconnection attempt ${attempt}`);
-      setSocketStatus(`reconnecting: attempt ${attempt}`);
-    });
-
-    socket.io.on("reconnect", () => {
-      console.log("Reconnected to server");
-      setSocketStatus("reconnected");
-      // Rejoin the group after reconnection
-      socket.emit('join-group', groupId);
-    });
-
-    // Listen for score updates
-    socket.on('score-update', (updatedScores) => {
-      console.log("★ Received score update:", updatedScores);
-      setScores(prevScores => {
-        // Create a proper merged object with both previous and new scores
-        const newScores = {...prevScores};
-
-        // Only merge valid score data
-        if (updatedScores && typeof updatedScores === 'object') {
           Object.keys(updatedScores).forEach(userId => {
             if (updatedScores[userId] &&
                 typeof updatedScores[userId].score === 'number') {
               newScores[userId] = updatedScores[userId];
             }
           });
-        }
 
-        console.log("Updated scores state:", newScores);
-        return newScores;
-      });
-    });
+          return newScores;
+        });
 
-    return () => {
-      console.log('Cleaning up socket connection');
-      socket.off('connect');
-      socket.off('disconnect');
-      socket.off('connect_error');
-      socket.off('score-update');
-      socket.disconnect();
-      setSocketInstance(null);
-    };
-  }, [groupId]); // Only re-run if groupId changes
-
-  // Manual reconnection function
-  const handleReconnect = () => {
-    if (socketInstance) {
-      socketInstance.disconnect();
-      socketInstance.connect();
-      setSocketStatus("reconnecting...");
+        setPollingStatus("success");
+      }
+    } catch (error) {
+      console.error("Error fetching scores:", error);
+      setPollingStatus("error: " + (error instanceof Error ? error.message : "Unknown error"));
     }
   };
+
+  // Start long polling
+  const startPolling = () => {
+    // Stop any existing polling
+    if (pollingInterval) {
+      clearInterval(pollingInterval);
+    }
+
+    // Start new polling interval
+    const newInterval = setInterval(() => {
+      fetchScores();
+    }, 5000); // Poll every 5 seconds
+
+    setPollingInterval(newInterval);
+    setPollingStatus("polling");
+  };
+
+  // Stop polling
+  const stopPolling = () => {
+    if (pollingInterval) {
+      clearInterval(pollingInterval);
+      setPollingInterval(null);
+      setPollingStatus("stopped");
+    }
+  };
+
+  // Initial fetch and start polling on component mount
+  useEffect(() => {
+    // Fetch initial scores
+    fetchScores();
+
+    // Start polling
+    startPolling();
+
+    // Cleanup function
+    return () => {
+      if (pollingInterval) {
+        clearInterval(pollingInterval);
+      }
+    };
+  }, [groupId]); // Re-run if groupId changes
 
   // Transform the nested data structure for the chart
   const chartData = {
@@ -170,18 +138,26 @@ const InterviewStandingsGraph = ({ groupId }: { groupId: string }) => {
     <div>
       <h3>Interview Standings</h3>
       <div style={{
-        color: socketStatus === "connected" ? "green" :
-               socketStatus === "reconnected" ? "green" :
-               socketStatus.includes("reconnecting") ? "orange" : "red",
+        color: pollingStatus === "success" ? "green" :
+               pollingStatus === "polling" ? "green" :
+               pollingStatus.includes("error") ? "red" : "orange",
         marginBottom: "10px"
       }}>
-        Socket Status: {socketStatus}
-        {socketStatus !== "connected" && socketStatus !== "reconnected" && (
+        Polling Status: {pollingStatus}
+        {pollingStatus !== "polling" && (
           <button
-            onClick={handleReconnect}
+            onClick={startPolling}
             style={{ marginLeft: "10px", padding: "2px 8px" }}
           >
-            Reconnect
+            Start Polling
+          </button>
+        )}
+        {pollingStatus === "polling" && (
+          <button
+            onClick={stopPolling}
+            style={{ marginLeft: "10px", padding: "2px 8px" }}
+          >
+            Stop Polling
           </button>
         )}
       </div>

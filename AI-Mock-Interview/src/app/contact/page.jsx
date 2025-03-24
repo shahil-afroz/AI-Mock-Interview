@@ -1,12 +1,11 @@
-import React from 'react'
 import { Button } from "@/components/ui/button";
-import Navbar from '../dashboard/_components/navbar';
+import React from 'react';
 import Footer from '../dashboard/_components/Footer';
 
 function page() {
   return (
     <div>
-      <Navbar/>
+
       <section className="py-20 bg-[#232a34]">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
