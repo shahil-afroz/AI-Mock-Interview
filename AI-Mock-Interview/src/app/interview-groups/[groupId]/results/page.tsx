@@ -1,7 +1,6 @@
 // app/interview-groups/[groupId]/page.tsx
 "use client";
 
-import Navbar from "@/app/dashboard/_components/navbar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -254,7 +253,7 @@ export default function InterviewGroupDashboard() {
 
   return (
     <div className="container mx-auto py-8">
-         <Navbar/>
+
       <header className="mb-8">
         <h1 className="text-3xl font-bold">Interview Group: {groupData.group.name}</h1>
         <div className="mt-2 flex flex-wrap gap-2">

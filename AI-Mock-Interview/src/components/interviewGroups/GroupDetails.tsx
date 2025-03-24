@@ -142,6 +142,15 @@ const GroupDetails = ({ groupId }: GroupDetailsProps) => {
               View Results
             </Button>
           )}
+           {!isCreator && (
+            <Button
+              variant="outline"
+              className="flex items-center gap-2"
+              onClick={() => router.push(`/interview-groups/${groupId}/session`)}
+            >
+             Join Now
+            </Button>
+          )}
         </div>
       </div>
 

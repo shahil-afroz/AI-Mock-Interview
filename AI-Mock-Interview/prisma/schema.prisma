@@ -118,12 +118,13 @@ enum TimeSlotStatus {
 }
 
 model InterviewGroup {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  publicId  String   @unique // For sharing via public link
-  name      String
-  createdBy String // Admin user ID
-  dateTime  DateTime
-
+  id                 String               @id @default(auto()) @map("_id") @db.ObjectId
+  publicId           String               @unique // For sharing via public link
+  name               String
+  createdBy          String // Admin user ID
+  dateTime           DateTime
+  isStarted          Boolean              @default(false)
+  isEnded            Boolean              @default(false)
   role               String
   timeLimit          Int                  @default(60) // in seconds
   skills             String[]
