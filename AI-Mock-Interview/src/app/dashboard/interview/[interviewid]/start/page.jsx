@@ -15,6 +15,7 @@ function StartInterview() {
   const [error, setError] = useState();
   const { interviewid } = useParams();
   const [activeQuestionIndex, setActiveQuestionIndex] = useState(0);
+  const[InterviewerId,setInterviewerId]=useState(0);
 
   // console.log("interviewid:", interviewid);
   const { seconds, minutes, hours, start, pause, reset } = useStopwatch({
@@ -34,6 +35,8 @@ function StartInterview() {
 
         // Ensure MockResponse is an array
         const parsedQuestions = data.MockResponse || [];
+        const InterviewerId=data.interviewerImageId;
+        setInterviewerId(InterviewerId);
         setmockInterviewQuestion(parsedQuestions);
         console.log("mockInterviewQuestion:", parsedQuestions);
       } catch (err) {
@@ -121,6 +124,7 @@ function StartInterview() {
             mockInterviewQuestion={mockInterviewQuestion}
             activeQuestionIndex={activeQuestionIndex}
             setActiveQuestionIndex={setActiveQuestionIndex}
+            InterviewerId={InterviewerId}
           />
         </div>
         <div className="bg-white p-6 rounded-lg shadow-md">

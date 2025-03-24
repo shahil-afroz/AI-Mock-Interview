@@ -63,6 +63,7 @@ model MockInterview {
   jobexperience   String
   difficultyLevel String
   numQuestions    Int
+  interviewerImageId  Int
 
   createdAt DateTime     @default(now())
   // interviewer   User         @relation("Interviewer", fields: [interviewerId], references: [id])
