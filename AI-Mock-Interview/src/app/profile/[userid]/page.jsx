@@ -1,5 +1,6 @@
 'use client'
 import RatingsChart from '@/components/chart';
+import { Skeleton } from "@/components/ui/skeleton";
 import { Calendar, Edit, FileText, Mail, MessageSquare, Share2, Star, ThumbsUp, User, Briefcase } from 'lucide-react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
@@ -24,7 +25,9 @@ export default function ProfilePage() {
         resume: "",
         languages: [],
         frameworks: [],
-        tools: []
+        tools: [],
+        AvgRating: null,
+        Gender: ""
     });
 
     const [experiences, setExperiences] = useState([]);
@@ -93,6 +96,91 @@ export default function ProfilePage() {
         const colors = colorSets[type] || colorSets.language;
         return colors[index % colors.length];
     };
+
+    // Skeleton Loader Component
+    const ProfileSkeleton = () => (
+        <div className="min-h-screen bg-gradient-to-br from-[#1a2331] to-[#2c3e50] text-white">
+            <Navbar />
+            <div className="container mx-auto px-4 py-8">
+                <div className="grid md:grid-cols-3 gap-8">
+                    {/* Profile Image and Actions Skeleton */}
+                    <div className="bg-[#2c3e50] rounded-2xl p-6 shadow-2xl border border-[#3a4b5c] flex flex-col items-center">
+                        <Skeleton className="w-36 h-36 rounded-full mb-6" />
+                        <Skeleton className="h-6 w-3/4 mb-2" />
+                        <Skeleton className="h-4 w-1/2 mb-4" />
+                        <div className="flex space-x-4 mb-6">
+                            <Skeleton className="h-10 w-28" />
+                            <Skeleton className="h-10 w-28" />
+                        </div>
+                        <Skeleton className="h-12 w-full" />
+                    </div>
+
+                    {/* Profile Stats and Description Skeleton */}
+                    <div className="md:col-span-2 space-y-6">
+                        <div className="bg-[#2c3e50] rounded-2xl p-6 shadow-2xl border border-[#3a4b5c]">
+                            <Skeleton className="h-6 w-1/4 mb-4" />
+                            <div className="grid md:grid-cols-3 gap-4">
+                                {[1, 2, 3].map((_, index) => (
+                                    <div key={index} className="bg-[#3a4b5c] rounded-lg p-4">
+                                        <Skeleton className="h-8 w-8 mx-auto mb-2" />
+                                        <Skeleton className="h-6 w-1/2 mx-auto mb-2" />
+                                        <Skeleton className="h-4 w-3/4 mx-auto" />
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                        <div className="bg-[#2c3e50] rounded-2xl p-6 shadow-2xl border border-[#3a4b5c]">
+                            <Skeleton className="h-6 w-1/4 mb-4" />
+                            <Skeleton className="h-20 w-full" />
+                        </div>
+                    </div>
+                </div>
+                {/* Additional Skeleton Sections */}
+                <div className="grid md:grid-cols-3 gap-8 mt-8">
+                    <div className="bg-[#2c3e50] rounded-2xl p-6 shadow-2xl border border-[#3a4b5c]">
+                        <Skeleton className="h-6 w-1/2 mb-4" />
+                        <div className="space-y-4">
+                            {[1, 2, 3].map((_, index) => (
+                                <div key={index} className="flex items-center space-x-3">
+                                    <Skeleton className="h-6 w-6" />
+                                    <Skeleton className="h-4 w-3/4" />
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                    <div className="md:col-span-2 bg-[#2c3e50] rounded-2xl p-6 shadow-2xl border border-[#3a4b5c]">
+                        <Skeleton className="h-6 w-1/4 mb-6" />
+                        <Skeleton className="h-24 w-full" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+
+    // Error State Component
+    const ErrorState = () => (
+        <div className="min-h-screen bg-gradient-to-br from-[#1a2331] to-[#2c3e50] text-white flex items-center justify-center">
+            <div className="text-center">
+                <h2 className="text-2xl text-red-400 mb-4">Error Loading Profile</h2>
+                <p className="text-gray-300">{error}</p>
+                <button 
+                    onClick={() => window.location.reload()}
+                    className="mt-4 bg-cyan-600 hover:bg-cyan-700 text-white px-4 py-2 rounded-lg"
+                >
+                    Retry
+                </button>
+            </div>
+        </div>
+    );
+
+    // Conditional Rendering
+    if (isLoading) {
+        return <ProfileSkeleton />;
+    }
+
+    if (error) {
+        return <ErrorState />;
+    }
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-[#1a2331] to-[#2c3e50] text-white">
@@ -194,7 +282,7 @@ export default function ProfilePage() {
                         </div>
                     </div>
 
-                    {/* ADDED: Experience Section */}
+                    {/* Experience Section */}
                     <div className="md:col-span-2 bg-[#2c3e50] rounded-2xl p-6 shadow-2xl border border-[#3a4b5c]">
                         <h3 className="text-xl font-semibold text-cyan-400 mb-6">Experience</h3>
                         
@@ -222,7 +310,7 @@ export default function ProfilePage() {
                     </div>
                 </div>
 
-                {/* Skills Section - Moved below Experience */}
+                {/* Skills Section */}
                 <div className="mt-8 bg-[#2c3e50] rounded-2xl p-6 shadow-2xl border border-[#3a4b5c]">
                     <h3 className="text-xl font-semibold text-cyan-400 mb-6">Skills Breakdown</h3>
 
