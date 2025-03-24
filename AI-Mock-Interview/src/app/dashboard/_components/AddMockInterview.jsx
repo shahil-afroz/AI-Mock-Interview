@@ -11,10 +11,12 @@ import { LoaderPinwheelIcon, Upload } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useRef } from "react";
 import { chatSession } from "../../../lib/AI/GeminiAIModel";
+import Image from "next/image";
 
 function AddMockInterview() {
   const router = useRouter();
   const fileInputRef = useRef(null);
+  const[selectedInterviewer,setSelectedInterviewer]=useState(0)
   
   const [openDialog, setOpenDialog] = useState(false);
   const [jobdesc, setJobdesc] = useState("");
@@ -27,6 +29,12 @@ function AddMockInterview() {
   const [difficultyLevel, setDifficultyLevel] = useState("medium");
   const [numQuestions, setNumQuestions] = useState(5);
   const [isMounted, setIsMounted] = useState(false);
+
+  const interviewers = [
+    { id: 1, name: "Alenrex Maity", imgSrc: "/interviewer_1.png" },
+    { id: 2, name: "John Smith", imgSrc: "/interviewer_2.png" },
+    { id: 3, name: "Ethan Vox", imgSrc: "/interviewer_3.png" },
+  ];
 
   useEffect(() => {
    
@@ -152,6 +160,7 @@ Output only the JSON structure without any preamble or explanations.
         jobDesc: jobdesc,
         jobPosition: role,
         jobexperience: years,
+        interviewerImageId:selectedInterviewer,
        
         difficultyLevel: difficultyLevel,
         numQuestions: numQuestions,
@@ -325,6 +334,31 @@ Output only the JSON structure without any preamble or explanations.
                     ))}
                   </div>
                 </div>
+                <div className="mt-4">
+        <h2 className="text-xl font-semibold">Select an Interviewer</h2>
+        <div className="flex gap-4 mt-2">
+          {interviewers.map((interviewer) => (
+            <div
+              key={interviewer.id}
+              className={`p-2 border rounded-lg cursor-pointer transition-all ${
+                selectedInterviewer === interviewer.id
+                  ? "border-blue-800 shadow-lg"
+                  : "border-gray-500"
+              }`}
+              onClick={() => setSelectedInterviewer(interviewer.id)}
+            >
+              <Image
+                src={interviewer.imgSrc}
+                alt={interviewer.name}
+                width={60}
+                height={50}
+                className="rounded-full"
+              />
+              <p className="text-center text-sm mt-1">{interviewer.name}</p>
+            </div>
+          ))}
+        </div>
+      </div>
 
                 {/* Number of Questions Input */}
                 <div className="flex flex-col mt-3">
