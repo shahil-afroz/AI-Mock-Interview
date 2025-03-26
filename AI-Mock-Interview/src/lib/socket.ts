@@ -13,6 +13,9 @@ export const initializeSocket = () => {
       autoConnect: true,
       reconnection: true,
       reconnectionAttempts: 5,
+      transports: ['websocket', 'polling'], // Explicitly define transports
+    timeout: 5000, // Connection timeout
+    forceNew: true,
       reconnectionDelay: 1000,
     });
 
@@ -75,7 +78,9 @@ interface InterviewState {
   usersInRoom: User[];
   submittedUsers: Set<string>;
   currentAnswer: string;
-
+  setInterviewInProgress: (inProgress: boolean) => void;
+  setCurrentQuestionIndex: (index: number) => void;
+  setTimeRemaining: (time: number) => void;
   joinInterview: (groupId: string, userId: string, username: string) => void;
   startInterview: (questions: Question[]) => void;
   submitAnswer: (answer: string) => void;
@@ -117,7 +122,15 @@ export const useInterviewStore = create<InterviewState>((set, get) => ({
 
     _setupSocketListeners();
   },
-
+  setInterviewInProgress: (inProgress: boolean) => {
+    set({ inProgress });
+  },
+  setCurrentQuestionIndex: (index: number) => {
+    set({ currentQuestionIndex: index });
+  },
+  setTimeRemaining: (time: number) => {
+    set({ timeRemaining: time });
+  },
   startInterview: (questions) => {
     const { groupId } = get();
     if (!groupId) return;

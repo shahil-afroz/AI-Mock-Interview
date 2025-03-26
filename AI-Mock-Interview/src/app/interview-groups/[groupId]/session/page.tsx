@@ -16,6 +16,7 @@ import { toast } from "sonner";
 
 // Add code editor import
 import dynamic from "next/dynamic";
+import InterviewStandingsGraph from "../../../../components/interviewGroups/ScoreLeaderBoard";
 
 // Dynamically import the code editor to avoid SSR issues
 const CodeEditor = dynamic(
@@ -159,6 +160,40 @@ export default function InterviewSessionPage({ params }: SessionPageProps) {
       cleanupAudio();
     };
   }, [groupId, userId, joinInterview, username]);
+
+  useEffect(() => {
+    const checkInterviewStatus = async () => {
+      try {
+        const response = await fetch(`/api/interview-groups/${groupId}/status`);
+        if (!response.ok) {
+          throw new Error("Failed to fetch interview status");
+        }
+        const data = await response.json();
+
+        // If the interview is already in progress, force update the store
+        if (data.inProgress) {
+          useInterviewStore.getState().setInterviewInProgress(true);
+
+          // Optionally, sync other interview state
+          if (data.currentQuestionIndex !== undefined) {
+            useInterviewStore.getState().setCurrentQuestionIndex(data.currentQuestionIndex);
+          }
+
+          // Sync time remaining if applicable
+          if (data.timeRemaining !== undefined) {
+            useInterviewStore.getState().setTimeRemaining(data.timeRemaining);
+          }
+        }
+      } catch (error) {
+        console.error("Error checking interview status:", error);
+      }
+    };
+
+    // Only check if not already in progress and user is not an admin
+    if (!inProgress && !isAdmin) {
+      checkInterviewStatus();
+    }
+  }, [groupId, inProgress, isAdmin]);
 
   // Listen for interview complete event
   useEffect(() => {
@@ -503,24 +538,51 @@ export default function InterviewSessionPage({ params }: SessionPageProps) {
   };
 
   // Start interview if admin
-  const handleStartInterview = () => {
-    if (!isAdmin || !questions.length) return;
+  const handleStartInterview = async () => {
+    try {
+      if (!isAdmin || !questions || questions.length === 0) {
+        throw new Error("You must be an admin and have questions to start the interview.");
+      }
 
-    // Format questions for socket.io format
-    const formattedQuestions = questions.map(q => ({
-      text: q.text,
-      correctAnswer: q.correctAnswer || "",
-      timeLimit: q.timeLimit,
-      difficulty: q.difficulty || 1,
-      skills: q.skills || [],
-      commonMistakes: q.commonMistakes,
-      maxScore: q.maxScore || 10,
-      type: q.type || "text",
-      language: q.language || "javascript"
-    }));
+      const token = await getToken();
+      if (!token) {
+        throw new Error("Authentication failed. Please log in again.");
+      }
 
-    startInterview(formattedQuestions);
+      const response = await fetch(`/api/interview-groups/${groupId}/start`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ groupId }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || "Failed to start group");
+      }
+
+      // Format questions for socket.io format
+      const formattedQuestions = questions.map((q) => ({
+        text: q.text,
+        correctAnswer: q.correctAnswer || "",
+        timeLimit: q.timeLimit || 60, // Default timeLimit to 60 seconds if not provided
+        difficulty: q.difficulty || 1,
+        skills: q.skills || [],
+        commonMistakes: q.commonMistakes || [],
+        maxScore: q.maxScore || 10,
+        type: q.type || "text",
+        language: q.language || "javascript",
+      }));
+
+      startInterview(formattedQuestions);
+    } catch (error) {
+      console.error("Error starting interview:", error);
+      alert(error.message); // Optional: Show an error message to the user
+    }
   };
+
 
   // Handle submitting answer
   const handleSubmitAnswer = async () => {
@@ -601,18 +663,12 @@ export default function InterviewSessionPage({ params }: SessionPageProps) {
   // Handle admin moving to next question
   const handleNextQuestion = () => {
     if (!isAdmin) return;
-
-    // Stop recording if it's still going
     if (isRecording) {
       stopRecording();
     }
-
-    // Reset code content for the next question
     setCodeContent("");
+  if (currentQuestionIndex >= questions.length - 1) {
 
-    // Check if this is the last question, and if so, end the interview
-    if (currentQuestionIndex >= questions.length - 1) {
-      // Mark the session as complete
       setSessionComplete(true);
       // Also trigger in the socket store
       useInterviewStore.getState().completeInterview();
@@ -622,17 +678,22 @@ export default function InterviewSessionPage({ params }: SessionPageProps) {
     nextQuestion();
   };
 
-  // Handle ending the interview
-  const handleEndInterview = () => {
-    if (!isAdmin) return;
 
-    // Mark the session as complete
+  const handleEndInterview =async () => {
+    if (!isAdmin) return;
+    const response = await fetch(`/api/interview-groups/${groupId}/endInterview`, {
+      method: "POST",
+      body: JSON.stringify({ groupId }),
+    });
+
+    if (!response.ok) {
+      const data = await response.json();
+      throw new Error(data.error || "Failed to end group");
+    }
     setSessionComplete(true);
-    // Also trigger in the socket store
     useInterviewStore.getState().completeInterview();
   };
 
-  // Handle code editor changes
   const handleCodeChange = (value: string | undefined) => {
     setCodeContent(value || "");
   };
@@ -789,34 +850,44 @@ export default function InterviewSessionPage({ params }: SessionPageProps) {
       </div>
     );
   }
-
+23
   // Update the conditional rendering for non-admin users
-if (!inProgress && !isAdmin) {
-  return (
-    <div className="container mx-auto py-12 px-4">
-      <Card className="max-w-3xl mx-auto">
-        <CardHeader>
-          <CardTitle className="text-center text-2xl">Waiting for Host</CardTitle>
-        </CardHeader>
-        <CardContent className="text-center">
-          <Loader2 className="h-16 w-16 animate-spin text-violet-600 mx-auto mb-4" />
-          <p className="text-lg text-gray-700 mb-4">
-            The interview session hasn't started yet.
-          </p>
-          <p className="text-gray-600 mb-8">
-            Waiting for the host to begin the session...
-          </p>
-        </CardContent>
-      </Card>
-    </div>
-  );
-}
-
+  if (!inProgress && !isAdmin) {
+    return (
+      <div className="container mx-auto py-12 px-4">
+        <Card className="max-w-3xl mx-auto">
+          <CardHeader>
+            <CardTitle className="text-center text-2xl">
+              {inProgress ? "Interview in Progress" : "Waiting for Host"}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="text-center">
+            {inProgress ? (
+              <p className="text-lg text-gray-700 mb-4">
+                The interview is currently ongoing. You will be joined momentarily.
+              </p>
+            ) : (
+              <>
+                <Loader2 className="h-16 w-16 animate-spin text-violet-600 mx-auto mb-4" />
+                <p className="text-lg text-gray-700 mb-4">
+                  The interview session hasn't started yet.
+                </p>
+                <p className="text-gray-600 mb-8">
+                  Waiting for the host to begin the session...
+                </p>
+              </>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   const currentQuestion = questions[currentQuestionIndex] || {
     text: "Loading question...",
     timeLimit: 0
   };
+
   const progressPercentage = ((currentQuestionIndex + 1) / questions.length) * 100;
 
   return (
@@ -872,7 +943,7 @@ if (!inProgress && !isAdmin) {
               <div className="p-4 bg-gray-50 rounded-lg mb-4">
                 <p className="whitespace-pre-wrap">{currentQuestion.text}</p>
               </div>
-
+                <InterviewStandingsGraph groupId={groupId} />
               <div className="mt-4">
                 {isSubmitted ? (
                   <div className="p-4 bg-green-50 rounded-lg border border-green-200">
