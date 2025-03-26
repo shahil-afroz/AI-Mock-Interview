@@ -100,7 +100,6 @@ export default function ProfilePage() {
     // Skeleton Loader Component
     const ProfileSkeleton = () => (
         <div className="min-h-screen bg-gradient-to-br from-[#1a2331] to-[#2c3e50] text-white">
-            <Navbar />
             <div className="container mx-auto px-4 py-8">
                 <div className="grid md:grid-cols-3 gap-8">
                     {/* Profile Image and Actions Skeleton */}

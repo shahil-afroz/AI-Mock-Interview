@@ -8,7 +8,6 @@ import { useUser } from "@clerk/nextjs";
 
 
 
-
 const Home = () => {
   const user=useUser();
    useEffect(() => {
@@ -41,7 +40,7 @@ const Home = () => {
     <div className="relative min-h-screen font-sans ">
     
      
-    <Navbar/>
+  
       {/* Hero Section */}
       <section className="relative px-4 py-20 sm:px-6 lg:px-8 bg-cover bg-center" 
         style={{
