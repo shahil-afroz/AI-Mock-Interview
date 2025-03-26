@@ -46,24 +46,7 @@ function AddMockInterview() {
     };
   }, []);
 
-  const saveUserToDB = async (user) => {
-    try {
-      await fetch("/api/save-user", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          id: user.id,
-          email: user.emailAddresses[0],
-          name: user.fullName,
-          image: user.imageUrl,
-        }),
-      });
-    } catch (error) {
-      console.error("Error saving user:", error);
-    }
-  };
+ 
 
   const handleFileChange = (e) => {
     if (!e.target.files || e.target.files.length === 0) return;
