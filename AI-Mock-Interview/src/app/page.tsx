@@ -1,8 +1,8 @@
 'use client'
 import {useEffect}from 'react';
-import { Button } from "@/components/ui/button";
+
 import Footer from '@/app/dashboard/_components/Footer'
-import Navbar from '@/app/dashboard/_components/navbar';
+
 import Link from 'next/link';
 import { useUser } from "@clerk/nextjs";
 
@@ -39,7 +39,7 @@ const Home = () => {
     };
   return (
     <div className="relative min-h-screen font-sans ">
-      {/* Navbar */}
+    
      
 
       {/* Hero Section */}
