@@ -114,7 +114,7 @@ const Home = () => {
               </div>
               <h3 className="text-lg  text-white font-semibold mb-2">Expert Feedback</h3>
               <p className='text-white'>
-                Receive detailed feedback and question-wise analysis to enhance your interview techniques effectively.
+              Receive detailed feedback, question-wise analysis, and advanced body posture video assessment to refine your interview techniques with precision and confidence.
               </p>
             </div>
 
@@ -127,9 +127,9 @@ const Home = () => {
                   </svg>
                 </div>
               </div>
-              <h3 className="text-lg text-white font-semibold mb-2">Realistic Experience</h3>
+              <h3 className="text-lg text-white font-semibold mb-2">Arena Battle</h3>
               <p className='text-white'>
-                Invite friends as interviewers and simulate real-world experiences to strengthen your confidence.
+              Engage in an arena-based friendly battle with friends, featuring AI-generated questions for a competitive and immersive interview experience.
               </p>
             </div>
 
@@ -144,7 +144,7 @@ const Home = () => {
               </div>
               <h3 className="text-lg  text-white font-semibold mb-2">Convenient Scheduling</h3>
               <p className='text-white'>
-                Schedule interviews with ease using Calendly, allowing you to practice whenever it suits you.
+              Schedule interviews effortlessly with difficulty-level selection and resume-based question generation, ensuring a tailored and effective practice experience.
               </p>
             </div>
           </div>
