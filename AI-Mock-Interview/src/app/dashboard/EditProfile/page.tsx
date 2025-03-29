@@ -1,8 +1,10 @@
 'use client'
 import { useState, useCallback, useTransition } from 'react';
 import { useForm } from 'react-hook-form';
-import { Calendar, Mail, Linkedin, MessageSquare, Info, X } from 'lucide-react';
+import { Calendar, Mail, Linkedin, MessageSquare, Info, X, Loader2 } from 'lucide-react';
 import { DropEvent, FileRejection, useDropzone } from 'react-dropzone';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import Experience from '../_components/Experience';
 import Skills from '../_components/Skills'
 import { addPersonalProfile } from '../../actions/addPersonalProfile';
@@ -25,6 +27,7 @@ export default function ProfilePage() {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | undefined>();
   const [success, setSuccess] = useState<string | undefined>();
+  const [isSaving, setIsSaving] = useState<boolean>(false);
 
   // State for file upload
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
@@ -52,6 +55,7 @@ export default function ProfilePage() {
       console.log("I AM BATMAN : ", data);
       if (data.secure_url) {
         setUploadedResumeUrl(data.secure_url);
+        toast.success('Resume uploaded successfully!');
         return data.secure_url;
       } else {
         throw new Error('Upload failed');
@@ -59,6 +63,7 @@ export default function ProfilePage() {
     } catch (error) {
       console.error('Error uploading file:', error);
       setError('Failed to upload file. Please try again.');
+      toast.error('Failed to upload file. Please try again.');
       return null;
     } finally {
       setIsUploading(false);
@@ -104,21 +109,31 @@ export default function ProfilePage() {
 
     console.log("data with resume URL:", formDataWithResume);
     
+    // Set saving state to true to show loading indicator
+    setIsSaving(true);
+    
     startTransition(() => {
       addPersonalProfile(formDataWithResume)
         .then((result: any) => {
           if (result.error) {
             setError(result.error);
             setSuccess(undefined);
+            toast.error(result.error);
           } else if (result.success) {
             setSuccess(result.success);
             setError(undefined);
+            toast.success('Profile saved successfully!');
             console.log("data uploaded successfully");
           }
         })
         .catch((err: Error) => {
           console.error("Error submitting form:", err);
           setError("Something went wrong!");
+          toast.error("Something went wrong!");
+        })
+        .finally(() => {
+          // Reset saving state when done
+          setIsSaving(false);
         });
     });
 
@@ -133,6 +148,20 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-screen bg-gray-900 text-white p-6">
+      {/* Toast Container */}
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="dark"
+      />
+      
       <div className="max-w-6xl mx-auto">
         <h1 className="text-2xl font-bold mb-1">Complete your profile details</h1>
         <p className="text-gray-400 text-sm mb-6">Detail Your Talent: Complete profile is your canvas to success</p>
@@ -371,14 +400,23 @@ export default function ProfilePage() {
                   </div>
                   <button
                     type="submit"
-                    disabled={isUploading}
-                    className={`w-full font-medium py-3 px-4 rounded-md ${
-                      isUploading 
+                    disabled={isUploading || isSaving}
+                    className={`w-full font-medium py-3 px-4 rounded-md flex items-center justify-center ${
+                      isUploading || isSaving
                         ? 'bg-gray-600 cursor-not-allowed' 
                         : 'bg-purple-600 hover:bg-purple-700 text-white'
                     }`}
                   >
-                    {isUploading ? 'Uploading...' : 'Save Profile'}
+                    {isSaving ? (
+                      <>
+                        <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+                        Saving Profile...
+                      </>
+                    ) : isUploading ? (
+                      'Uploading...'
+                    ) : (
+                      'Save Profile'
+                    )}
                   </button>
                 </>
               )}

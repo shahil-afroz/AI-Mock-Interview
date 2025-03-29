@@ -13,6 +13,8 @@ import {
 import { useState, useTransition } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { addExperiences } from "@/app/actions/addExperience";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -72,17 +74,57 @@ function ExperienceSettingsPage() {
           if (data.error) {
             setError(data.error);
             setSuccess(undefined);
+            toast.error(data.error, {
+              position: "top-right",
+              autoClose: 5000,
+              hideProgressBar: false,
+              closeOnClick: true,
+              pauseOnHover: true,
+              draggable: true,
+            });
           } else if (data.success) {
             setSuccess(data.success);
             setError(undefined);
+            toast.success(data.success, {
+              position: "top-right",
+              autoClose: 5000,
+              hideProgressBar: false,
+              closeOnClick: true,
+              pauseOnHover: true,
+              draggable: true,
+            });
           }
         })
-        .catch(() => setError("Something went wrong!"));
+        .catch(() => {
+          const errorMsg = "Something went wrong!";
+          setError(errorMsg);
+          toast.error(errorMsg, {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+          });
+        });
     });
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 flex items-center justify-center text-gray-200">
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="dark"
+      />
+      
       <div className="py-8 w-full max-w-7xl px-4 sm:px-6">
         {/* Header Section */}
         <header className="mb-8 sm:mb-10 flex items-center justify-between border-b border-gray-700 pb-6">
@@ -246,7 +288,7 @@ function ExperienceSettingsPage() {
               ) : (
                 <Save className="w-5 h-5" />
               )}
-              Save All Experiences
+              {isPending ? "Saving..." : "Save All Experiences"}
             </Button>
           </form>
         </Form>
